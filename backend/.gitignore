@@ -81,6 +81,7 @@ PyCharm
 *.iws
 *.iml
 
+.venv
 Eclipse
 .project
 .pydevproject
