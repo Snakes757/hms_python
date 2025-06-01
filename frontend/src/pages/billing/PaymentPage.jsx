@@ -1,73 +1,57 @@
-// src/pages/billing/PaymentPage.jsx
-import React, { useState, useContext } from 'react';
-import PaymentForm from '../../components/billing/PaymentForm';
-import Sidebar from '../../components/common/Sidebar';
-import { AuthContext } from '../../context/AuthContext';
-import { getInvoiceDetails } from '../../api/billing'; // To fetch invoice details by number
-import LoadingSpinner from '../../components/common/LoadingSpinner';
-import usePermissions from '../../hooks/usePermissions';
-import { formatCurrency, formatDate } from '../../utils/formatters';
+import React, { useState, useContext } from "react";
+import PaymentForm from "../../components/billing/PaymentForm";
+import PageWithSidebar from "../../routes/PageWithSidebar";
+import RoleBasedRoute from "../../components/common/RoleBasedRoute";
+import { AuthContext } from "../../context/AuthContext";
+import { billingApi } from "../../api";
+import LoadingSpinner from "../../components/common/LoadingSpinner";
+import { USER_ROLES } from "../../utils/constants";
+import { formatCurrency, formatDate } from "../../utils/formatters";
 
 const PaymentPage = () => {
   const { user: currentUser } = useContext(AuthContext);
-  const { can } = usePermissions();
 
-  const [invoiceNumberSearch, setInvoiceNumberSearch] = useState('');
+  const [invoiceNumberSearch, setInvoiceNumberSearch] = useState("");
   const [searchedInvoice, setSearchedInvoice] = useState(null);
-  const [searchError, setSearchError] = useState('');
+  const [searchError, setSearchError] = useState("");
   const [isLoadingInvoice, setIsLoadingInvoice] = useState(false);
   const [paymentRecorded, setPaymentRecorded] = useState(false);
 
   const handleSearchInvoice = async (e) => {
     e.preventDefault();
     if (!invoiceNumberSearch.trim()) {
-      setSearchError('Please enter an invoice number to search.');
+      setSearchError("Please enter an invoice ID to search.");
       setSearchedInvoice(null);
       return;
     }
     setIsLoadingInvoice(true);
-    setSearchError('');
+    setSearchError("");
     setSearchedInvoice(null);
     setPaymentRecorded(false);
 
     try {
-      // The backend API for invoices uses ID, not invoice_number, for direct GET.
-      // We would need an API endpoint like GET /api/v1/billing/invoices/?invoice_number=INV-XYZ
-      // For now, assuming listInvoices can be filtered by invoice_number or we fetch one by one (not ideal).
-      // Let's simulate a direct fetch if an endpoint like /api/v1/billing/invoices/find_by_number/{invoice_number}/ existed
-      // Or, if getInvoiceDetails could take invoice_number (which it currently doesn't, it takes ID).
-
-      // This is a simplified approach: We'll assume we need to list and find.
-      // A better backend would have a direct lookup.
-      // For this example, we'll mock this part or assume an ID is entered if no direct number lookup.
-      // Let's modify this to expect an INVOICE ID for search for simplicity with current API.
-      
-      // To truly search by invoice_number, the `listInvoices` API would need to support it as a query param.
-      // const invoices = await listInvoices({ invoice_number: invoiceNumberSearch });
-      // if (invoices && invoices.length > 0) {
-      //   setSearchedInvoice(invoices[0]);
-      // } else {
-      //   setSearchError(`Invoice with number "${invoiceNumberSearch}" not found.`);
-      // }
-
-      // SIMPLIFICATION: Assume user enters INVOICE ID for now, as getInvoiceDetails takes ID.
-      // If you want to search by invoice_number, the backend API needs to support that query.
       const invoiceId = parseInt(invoiceNumberSearch, 10);
       if (isNaN(invoiceId)) {
-        setSearchError('Please enter a valid Invoice ID (numeric). For search by number, API needs update.');
+        setSearchError("Please enter a valid Invoice ID (numeric).");
         setIsLoadingInvoice(false);
         return;
       }
-      const data = await getInvoiceDetails(invoiceId);
-      if (data.status === 'PAID' || data.status === 'VOID') {
-        setSearchError(`Invoice ${data.invoice_number} is already ${data.status.toLowerCase()} and cannot accept new payments.`);
+      const data = await billingApi.getInvoiceDetails(invoiceId);
+      if (data.status === "PAID" || data.status === "VOID") {
+        setSearchError(
+          `Invoice ${
+            data.invoice_number
+          } is already ${data.status_display.toLowerCase()} and cannot accept new payments.`
+        );
         setSearchedInvoice(data); // Still show details
       } else {
         setSearchedInvoice(data);
       }
-
     } catch (err) {
-      setSearchError(err.message || 'Failed to find invoice. Please check the ID and try again.');
+      setSearchError(
+        err.message ||
+          "Failed to find invoice. Please check the ID and try again."
+      );
       setSearchedInvoice(null);
     } finally {
       setIsLoadingInvoice(false);
@@ -76,96 +60,155 @@ const PaymentPage = () => {
 
   const handlePaymentSuccess = () => {
     setPaymentRecorded(true);
-    // Re-fetch invoice details to show updated amount due and status
     if (searchedInvoice) {
       setIsLoadingInvoice(true);
-      getInvoiceDetails(searchedInvoice.id)
-        .then(data => setSearchedInvoice(data))
-        .catch(err => setSearchError(err.message || "Error refreshing invoice details."))
+      billingApi
+        .getInvoiceDetails(searchedInvoice.id)
+        .then((data) => setSearchedInvoice(data))
+        .catch((err) =>
+          setSearchError(err.message || "Error refreshing invoice details.")
+        )
         .finally(() => setIsLoadingInvoice(false));
     }
   };
 
-  if (!currentUser || !can('RECORD_PAYMENT')) {
-    return (
-      <div className="d-flex">
-        <Sidebar />
-        <div className="container-fluid mt-4 flex-grow-1">
-          <div className="alert alert-danger">Access Denied. You do not have permission to record payments.</div>
-        </div>
-      </div>
-    );
-  }
-
   return (
-    <div className="d-flex">
-      <Sidebar />
-      <div className="container-fluid mt-4 flex-grow-1">
-        <h1>Record Payment</h1>
-        <p>Search for an invoice by its ID to record a payment against it.</p>
-
-        <div className="card shadow-sm mb-4">
-          <div className="card-body">
-            <form onSubmit={handleSearchInvoice} className="row g-3 align-items-end">
-              <div className="col-md-8">
-                <label htmlFor="invoiceNumberSearch" className="form-label">Invoice ID</label>
+    <RoleBasedRoute allowedRoles={[USER_ROLES.ADMIN, USER_ROLES.RECEPTIONIST]}>
+      <PageWithSidebar title="Record Payment">
+        <div className="space-y-6">
+          <div className="bg-white p-6 rounded-lg shadow-xl">
+            <h2 className="text-xl font-semibold text-gray-700 mb-4">
+              Search for Invoice
+            </h2>
+            <form
+              onSubmit={handleSearchInvoice}
+              className="grid grid-cols-1 md:grid-cols-3 gap-4 items-end"
+            >
+              <div className="md:col-span-2">
+                <label
+                  htmlFor="invoiceNumberSearch"
+                  className="block text-sm font-medium text-gray-700"
+                >
+                  Invoice ID
+                </label>
                 <input
-                  type="text" // Changed to text to allow INV- prefix if backend supports it later
-                  className="form-control"
+                  type="text"
+                  className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
                   id="invoiceNumberSearch"
                   value={invoiceNumberSearch}
                   onChange={(e) => setInvoiceNumberSearch(e.target.value)}
                   placeholder="Enter Invoice ID (e.g., 123)"
                 />
               </div>
-              <div className="col-md-4">
-                <button type="submit" className="btn btn-primary w-100" disabled={isLoadingInvoice}>
-                  {isLoadingInvoice ? <LoadingSpinner size="sm" message="Searching..." /> : 'Search Invoice'}
+              <div>
+                <button
+                  type="submit"
+                  className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50"
+                  disabled={isLoadingInvoice}
+                >
+                  {isLoadingInvoice ? (
+                    <LoadingSpinner size="sm" />
+                  ) : (
+                    "Search Invoice"
+                  )}
                 </button>
               </div>
             </form>
-            {searchError && <div className="alert alert-danger mt-3">{searchError}</div>}
+            {searchError && (
+              <div className="mt-3 text-sm text-red-600 bg-red-100 p-3 rounded-md">
+                {searchError}
+              </div>
+            )}
           </div>
+
+          {isLoadingInvoice && !searchedInvoice && (
+            <div className="flex justify-center py-6">
+              <LoadingSpinner message="Fetching invoice details..." />
+            </div>
+          )}
+
+          {searchedInvoice && (
+            <div className="bg-white p-6 rounded-lg shadow-xl">
+              <h3 className="text-lg font-semibold text-gray-800 mb-3">
+                Invoice Details: {searchedInvoice.invoice_number}
+              </h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-x-4 gap-y-2 text-sm">
+                <p>
+                  <strong className="text-gray-600">Patient:</strong>{" "}
+                  {searchedInvoice.patient_details?.user?.first_name}{" "}
+                  {searchedInvoice.patient_details?.user?.last_name}
+                </p>
+                <p>
+                  <strong className="text-gray-600">Status:</strong>{" "}
+                  <span
+                    className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
+                      searchedInvoice.status === "PAID" ||
+                      searchedInvoice.status === "VOID"
+                        ? "bg-gray-100 text-gray-800"
+                        : "bg-yellow-100 text-yellow-800"
+                    }`}
+                  >
+                    {searchedInvoice.status_display || searchedInvoice.status}
+                  </span>
+                </p>
+                <p>
+                  <strong className="text-gray-600">Total Amount:</strong>{" "}
+                  {formatCurrency(searchedInvoice.total_amount)}
+                </p>
+                <p>
+                  <strong className="text-gray-600">Amount Paid:</strong>{" "}
+                  {formatCurrency(searchedInvoice.paid_amount)}
+                </p>
+                <p className="font-bold text-base">
+                  <strong className="text-gray-600">Amount Due:</strong>{" "}
+                  {formatCurrency(searchedInvoice.amount_due)}
+                </p>
+                <p>
+                  <strong className="text-gray-600">Issue Date:</strong>{" "}
+                  {formatDate(searchedInvoice.issue_date)}
+                </p>
+                <p>
+                  <strong className="text-gray-600">Due Date:</strong>{" "}
+                  {formatDate(searchedInvoice.due_date)}
+                </p>
+              </div>
+            </div>
+          )}
+
+          {paymentRecorded && searchedInvoice && (
+            <div
+              className="bg-green-100 border-l-4 border-green-500 text-green-700 p-4 rounded-md"
+              role="alert"
+            >
+              <p className="font-bold">Payment Recorded!</p>
+              <p>
+                Payment recorded successfully for invoice{" "}
+                {searchedInvoice.invoice_number}. Amount due is now{" "}
+                {formatCurrency(searchedInvoice.amount_due)}.
+              </p>
+            </div>
+          )}
+
+          {searchedInvoice &&
+            searchedInvoice.status !== "PAID" &&
+            searchedInvoice.status !== "VOID" &&
+            !paymentRecorded && (
+              <div className="bg-white p-6 rounded-lg shadow-xl">
+                <PaymentForm
+                  invoiceId={searchedInvoice.id}
+                  currentAmountDue={parseFloat(searchedInvoice.amount_due)}
+                  onPaymentRecorded={handlePaymentSuccess}
+                  onCancel={() => {
+                    setSearchedInvoice(null);
+                    setInvoiceNumberSearch("");
+                    setPaymentRecorded(false);
+                  }}
+                />
+              </div>
+            )}
         </div>
-
-        {isLoadingInvoice && !searchedInvoice && <LoadingSpinner message="Fetching invoice details..." />}
-
-        {searchedInvoice && (
-          <div className="card shadow-sm mb-4">
-            <div className="card-header">
-              <h5 className="mb-0">Invoice Details: {searchedInvoice.invoice_number}</h5>
-            </div>
-            <div className="card-body">
-              <p><strong>Patient:</strong> {searchedInvoice.patient_details?.user?.first_name} {searchedInvoice.patient_details?.user?.last_name}</p>
-              <p><strong>Status:</strong> <span className={`badge bg-${searchedInvoice.status === 'PAID' || searchedInvoice.status === 'VOID' ? 'secondary' : 'warning'}`}>{searchedInvoice.status_display || searchedInvoice.status}</span></p>
-              <p><strong>Total Amount:</strong> {formatCurrency(searchedInvoice.total_amount)}</p>
-              <p><strong>Amount Paid:</strong> {formatCurrency(searchedInvoice.paid_amount)}</p>
-              <p className="fw-bold">Amount Due: {formatCurrency(searchedInvoice.amount_due)}</p>
-              <p><small className="text-muted">Issue Date: {formatDate(searchedInvoice.issue_date)} | Due Date: {formatDate(searchedInvoice.due_date)}</small></p>
-            </div>
-          </div>
-        )}
-
-        {paymentRecorded && searchedInvoice && (
-            <div className="alert alert-success">
-                Payment recorded successfully for invoice {searchedInvoice.invoice_number}! Amount due is now {formatCurrency(searchedInvoice.amount_due)}.
-            </div>
-        )}
-
-        {searchedInvoice && searchedInvoice.status !== 'PAID' && searchedInvoice.status !== 'VOID' && !paymentRecorded && (
-          <PaymentForm
-            invoiceId={searchedInvoice.id}
-            currentAmountDue={parseFloat(searchedInvoice.amount_due)}
-            onPaymentRecorded={handlePaymentSuccess}
-            onCancel={() => { 
-                setSearchedInvoice(null); 
-                setInvoiceNumberSearch('');
-                setPaymentRecorded(false);
-            }} // Clear search on cancel
-          />
-        )}
-      </div>
-    </div>
+      </PageWithSidebar>
+    </RoleBasedRoute>
   );
 };
 

@@ -1,19 +1,19 @@
-// src/routes/InquiryDetailsPageWrapper.jsx
-import React from 'react';
-import { useParams } from 'react-router-dom';
-import PageWithSidebar from './PageWithSidebar'; // HOC for layout
-import InquiryDetails from '../components/inquiries/InquiryDetails'; // The actual details component
+import React from "react";
+import { useParams } from "react-router-dom";
+import PageWithSidebar from "./PageWithSidebar";
+import InquiryDetails from "../components/inquiries/InquiryDetails";
+import ProtectedRoute from "../components/common/ProtectedRoute";
 
 const InquiryDetailsPageWrapper = () => {
-    const { inquiryId } = useParams();
-    
-    // This wrapper ensures the InquiryDetails component is rendered within the PageWithSidebar layout
-    // and receives the inquiryId from the URL parameters.
-    return (
-        <PageWithSidebar title="Inquiry Details">
-            <InquiryDetails inquiryIdParam={inquiryId} />
-        </PageWithSidebar>
-    );
+  const { inquiryId } = useParams();
+
+  return (
+    <ProtectedRoute>
+      <PageWithSidebar title={`Inquiry #${inquiryId} Details`}>
+        <InquiryDetails inquiryIdParam={inquiryId} />
+      </PageWithSidebar>
+    </ProtectedRoute>
+  );
 };
 
 export default InquiryDetailsPageWrapper;

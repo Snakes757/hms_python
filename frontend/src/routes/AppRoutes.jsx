@@ -2,79 +2,90 @@ import React, { useContext } from "react";
 import { Routes, Route, Navigate, Outlet } from "react-router-dom";
 import { AuthContext } from "../context/AuthContext";
 import ProtectedRoute from "../components/common/ProtectedRoute";
-import RoleBasedRoute from "../components/common/RoleBasedRoute"; // Assuming RoleBasedRoute handles array of roles
+import RoleBasedRoute from "../components/common/RoleBasedRoute";
+import PageWithSidebar from "./PageWithSidebar";
 
-// Page Imports
 import LoginPage from "../pages/Login";
 import RegisterPage from "../pages/Register";
 import ForgotPasswordPage from "../pages/auth/ForgotPasswordPage";
 import ResetPasswordPage from "../pages/auth/ResetPasswordPage";
-import HomePage from "../pages/Home"; // General authenticated homepage/dashboard router
-import UserProfilePage from "../pages/profile/UserProfilePage"; // User's own profile
+import HomePage from "../pages/Home";
+import UserProfilePage from "../pages/profile/UserProfilePage";
 import ProfileSettingsPage from "../pages/profile/ProfileSettingsPage";
 
-// Patient Specific Pages/Components
-import PatientProfilePage from "../pages/patients/PatientProfilePage"; // Viewing a patient's profile (can be self or by staff)
+import PatientListPage from "../pages/patients/PatientListPage";
+import PatientProfilePage from "../pages/patients/PatientProfilePage";
+
 import MedicalRecordsPage from "../pages/medical/MedicalRecordsPage";
 import PrescriptionsPage from "../pages/medical/PrescriptionsPage";
 import TreatmentsPage from "../pages/medical/TreatmentsPage";
 import ObservationsPage from "../pages/medical/ObservationsPage";
 
-// Appointment Pages
 import AppointmentListPage from "../pages/appointments/AppointmentListPage";
 import AppointmentCreatePage from "../pages/appointments/AppointmentCreatePage";
 import AppointmentDetailsPage from "../pages/appointments/AppointmentDetailsPage";
-import AppointmentEditPage from "../pages/appointments/AppointmentEditPage"; // Assuming this exists or will be created
+import AppointmentEditPage from "../pages/appointments/AppointmentEditPage";
 
-// Billing Pages
 import InvoiceListPage from "../pages/billing/InvoiceListPage";
-import InvoiceCreatePage from "../pages/billing/InvoiceCreatePage"; // Assuming this exists
+import InvoiceCreatePage from "../pages/billing/InvoiceCreatePage";
 import InvoiceDetailsPage from "../pages/billing/InvoiceDetailsPage";
-import InvoiceEditPage from "../pages/billing/InvoiceEditPage"; // Assuming this exists
+import InvoiceEditPage from "../pages/billing/InvoiceEditPage";
 import PaymentPage from "../pages/billing/PaymentPage";
 import BillingDashboardPage from "../pages/dashboard/BillingDashboardPage";
 
-// Telemedicine Pages
 import TelemedicineListPage from "../pages/telemedicine/TelemedicineListPage";
 import TelemedicineSessionPage from "../pages/telemedicine/TelemedicineSessionPage";
-import TelemedicineCreatePage from "../pages/telemedicine/TelemedicineCreatePage"; // Assuming this exists
-import TelemedicineEditPage from "../pages/telemedicine/TelemedicineEditPage"; // Assuming this exists
+import TelemedicineCreatePage from "../pages/telemedicine/TelemedicineCreatePage";
+import TelemedicineEditPage from "../pages/telemedicine/TelemedicineEditPage";
 
-// Inquiry Pages
 import InquiryListPage from "../pages/inquiries/InquiryListPage";
 import InquiryCreatePage from "../pages/inquiries/InquiryCreatePage";
-import InquiryDetailsPageWrapper from "./InquiryDetailsPageWrapper"; // Wrapper for InquiryDetails
+import InquiryDetailsPageWrapper from "./InquiryDetailsPageWrapper";
 
-// Role-Specific Route Groups
 import AdminRoutes from "./AdminRoutes";
-import DoctorRoutes from "./DoctorRoutes"; // Assuming this will be fleshed out
-import NurseRoutes from "./NurseRoutes"; // Assuming this will be fleshed out
-import ReceptionistRoutes from "./ReceptionistRoutes"; // Assuming this will be fleshed out
+import DoctorRoutes from "./DoctorRoutes";
+import NurseRoutes from "./NurseRoutes";
+import ReceptionistRoutes from "./ReceptionistRoutes";
+import PatientRoutes from "./PatientRoutes";
 
-// Common Pages
 import NotFoundPage from "../pages/NotFound";
 import UnauthorizedPage from "../pages/Unauthorized";
 
 import { USER_ROLES } from "../utils/constants";
 
 const AppRoutes = () => {
-  const { user } = useContext(AuthContext);
+  const { user, token, loading } = useContext(AuthContext);
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-screen">
+        <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-blue-500"></div>
+      </div>
+    );
+  }
 
   return (
     <Routes>
-      {/* Public Routes */}
-      <Route path="/login" element={<LoginPage />} />
-      <Route path="/register" element={<RegisterPage />} />
+      {/* Publicly Accessible Routes */}
+      <Route
+        path="/login"
+        element={!token ? <LoginPage /> : <Navigate to="/" replace />}
+      />
+      <Route
+        path="/register"
+        element={!token ? <RegisterPage /> : <Navigate to="/" replace />}
+      />
       <Route path="/forgot-password" element={<ForgotPasswordPage />} />
       <Route
         path="/reset-password/:uid/:token"
         element={<ResetPasswordPage />}
       />
-      <Route path="/reset-password" element={<ResetPasswordPage />} />{" "}
-      {/* For links that might not have params in URL path directly */}
+      <Route path="/reset-password" element={<ResetPasswordPage />} />
       <Route path="/contact-us" element={<InquiryCreatePage />} />
       <Route path="/submit-inquiry" element={<InquiryCreatePage />} />
-      {/* Authenticated Routes */}
+      <Route path="/unauthorized" element={<UnauthorizedPage />} />
+
+      {/* Authenticated Routes - Entry Point */}
       <Route
         path="/"
         element={
@@ -84,12 +95,58 @@ const AppRoutes = () => {
         }
       />
       <Route path="/home" element={<Navigate replace to="/" />} />
-      <Route path="/unauthorized" element={<UnauthorizedPage />} />
+
+      {/* Role-Specific Nested Routes */}
+      <Route
+        path="/admin/*"
+        element={
+          <RoleBasedRoute allowedRoles={[USER_ROLES.ADMIN]}>
+            <AdminRoutes />
+          </RoleBasedRoute>
+        }
+      />
+      <Route
+        path="/doctor/*"
+        element={
+          <RoleBasedRoute allowedRoles={[USER_ROLES.DOCTOR]}>
+            <DoctorRoutes />
+          </RoleBasedRoute>
+        }
+      />
+      <Route
+        path="/nurse/*"
+        element={
+          <RoleBasedRoute allowedRoles={[USER_ROLES.NURSE]}>
+            <NurseRoutes />
+          </RoleBasedRoute>
+        }
+      />
+      <Route
+        path="/receptionist/*"
+        element={
+          <RoleBasedRoute allowedRoles={[USER_ROLES.RECEPTIONIST]}>
+            <ReceptionistRoutes />
+          </RoleBasedRoute>
+        }
+      />
+      <Route
+        path="/patient/*"
+        element={
+          <RoleBasedRoute allowedRoles={[USER_ROLES.PATIENT]}>
+            <PatientRoutes />
+          </RoleBasedRoute>
+        }
+      />
+
+      {/* Common Authenticated Routes (accessible by multiple roles if not covered by specific role/* paths) */}
+      {/* These should ideally be part of the role-specific routes or handled by HomePage logic */}
       <Route
         path="/profile/me"
         element={
           <ProtectedRoute>
-            <UserProfilePage />
+            <PageWithSidebar title="My Profile">
+              <UserProfilePage />
+            </PageWithSidebar>
           </ProtectedRoute>
         }
       />
@@ -97,20 +154,41 @@ const AppRoutes = () => {
         path="/profile/settings"
         element={
           <ProtectedRoute>
-            <ProfileSettingsPage />
+            <PageWithSidebar title="Profile Settings">
+              <ProfileSettingsPage />
+            </PageWithSidebar>
           </ProtectedRoute>
         }
       />
-      {/* Patient Profile Viewing (self or by authorized staff) */}
       <Route
-        path="/patients/:userId" // This can be used by staff to view patient profiles, or patient for their own.
+        path="/patients"
+        element={
+          <RoleBasedRoute
+            allowedRoles={[
+              USER_ROLES.ADMIN,
+              USER_ROLES.DOCTOR,
+              USER_ROLES.NURSE,
+              USER_ROLES.RECEPTIONIST,
+            ]}
+          >
+            <PageWithSidebar title="Patient List">
+              <PatientListPage />
+            </PageWithSidebar>
+          </RoleBasedRoute>
+        }
+      />
+      <Route
+        path="/patients/:userId"
         element={
           <ProtectedRoute>
-            <PatientProfilePage />
+            {" "}
+            {}
+            <PageWithSidebar title="Patient Details">
+              <PatientProfilePage />
+            </PageWithSidebar>
           </ProtectedRoute>
         }
       />
-      {/* Appointments Routes - Accessible by all authenticated, behavior inside components may differ */}
       <Route
         path="/appointments"
         element={
@@ -149,8 +227,6 @@ const AppRoutes = () => {
           </RoleBasedRoute>
         }
       />
-      {/* Medical Information Routes - Primarily for patients (own) and relevant staff */}
-      {/* MedicalRecordsPage already handles logic for patient viewing own or staff viewing specific patient */}
       <Route
         path="/medical-records/patient/:patientUserId/general"
         element={
@@ -183,26 +259,6 @@ const AppRoutes = () => {
           </ProtectedRoute>
         }
       />
-      {/* A patient's own records shortcut */}
-      <Route
-        path="/my-records"
-        element={
-          <ProtectedRoute requiredRole={USER_ROLES.PATIENT}>
-            {" "}
-            <Navigate to={`/patients/${user?.id}`} replace />{" "}
-          </ProtectedRoute>
-        }
-      />
-      <Route
-        path="/my-appointments"
-        element={
-          <ProtectedRoute requiredRole={USER_ROLES.PATIENT}>
-            {" "}
-            <Navigate to={`/appointments`} replace />{" "}
-          </ProtectedRoute>
-        }
-      />
-      {/* Billing Routes */}
       <Route
         path="/billing/dashboard"
         element={
@@ -217,8 +273,6 @@ const AppRoutes = () => {
         path="/billing/invoices"
         element={
           <ProtectedRoute>
-            {" "}
-            {/* Patient can view own, staff can view all/create */}
             <InvoiceListPage />
           </ProtectedRoute>
         }
@@ -237,8 +291,6 @@ const AppRoutes = () => {
         path="/billing/invoices/:invoiceId"
         element={
           <ProtectedRoute>
-            {" "}
-            {/* Patient can view own, staff can view details */}
             <InvoiceDetailsPage />
           </ProtectedRoute>
         }
@@ -263,7 +315,6 @@ const AppRoutes = () => {
           </RoleBasedRoute>
         }
       />
-      {/* Telemedicine Routes */}
       <Route
         path="/telemedicine/sessions"
         element={
@@ -299,13 +350,10 @@ const AppRoutes = () => {
               USER_ROLES.PATIENT,
             ]}
           >
-            {" "}
-            {/* Patient for feedback */}
             <TelemedicineEditPage />
           </RoleBasedRoute>
         }
       />
-      {/* Inquiries Routes */}
       <Route
         path="/inquiries"
         element={
@@ -314,8 +362,16 @@ const AppRoutes = () => {
           </ProtectedRoute>
         }
       />
-      {/* InquiryCreatePage is public too, but if logged in, it might prefill data */}
-      <Route path="/inquiries/new" element={<InquiryCreatePage />} />
+      <Route
+        path="/inquiries/new"
+        element={
+          <ProtectedRoute>
+            {" "}
+            {}
+            <InquiryCreatePage />
+          </ProtectedRoute>
+        }
+      />
       <Route
         path="/inquiries/:inquiryId"
         element={
@@ -324,34 +380,7 @@ const AppRoutes = () => {
           </ProtectedRoute>
         }
       />
-      {/* Role-Specific Sections */}
-      <Route path="/admin/*" element={<AdminRoutes />} />
-      <Route
-        path="/doctor/*"
-        element={
-          <RoleBasedRoute allowedRoles={[USER_ROLES.DOCTOR]}>
-            <DoctorRoutes />
-          </RoleBasedRoute>
-        }
-      />
-      <Route
-        path="/nurse/*"
-        element={
-          <RoleBasedRoute allowedRoles={[USER_ROLES.NURSE]}>
-            <NurseRoutes />
-          </RoleBasedRoute>
-        }
-      />
-      <Route
-        path="/receptionist/*"
-        element={
-          <RoleBasedRoute allowedRoles={[USER_ROLES.RECEPTIONIST]}>
-            <ReceptionistRoutes />
-          </RoleBasedRoute>
-        }
-      />
-      {/* Patient specific routes could also be grouped if they grow complex, for now many are top-level */}
-      {/* Fallback for any unmatched routes */}
+
       <Route path="*" element={<NotFoundPage />} />
     </Routes>
   );

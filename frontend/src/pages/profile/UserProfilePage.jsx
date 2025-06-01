@@ -1,260 +1,604 @@
-// src/pages/profile/UserProfilePage.jsx
-import React, { useContext, useState, useEffect } from 'react';
-import { AuthContext } from '../../context/AuthContext';
-import { updateUserProfile, getUserProfile } from '../../api/auth'; // Assuming updateUserProfile is in auth.js
+import React, { useContext, useState, useEffect } from "react";
+import { AuthContext } from "../../context/AuthContext";
+import { UserContext } from "../../context/UserContext"; // Using UserContext for profile data
+import PageWithSidebar from "../../routes/PageWithSidebar";
+import ProtectedRoute from "../../components/common/ProtectedRoute";
+import LoadingSpinner from "../../components/common/LoadingSpinner";
+import { USER_ROLES } from "../../utils/constants";
+import { usersApi } from "../../api"; // For specific profile updates if needed
 
 const UserProfilePage = () => {
-  const { user, setUser, token, loading: authLoading } = useContext(AuthContext);
-  const [profileData, setProfileData] = useState(null);
+  const {
+    user: authUser,
+    token,
+    loading: authLoading,
+  } = useContext(AuthContext);
+  // Use UserContext for profile data and updates
+  const {
+    profile,
+    loadingProfile,
+    profileError,
+    updateUserSpecificProfile,
+    setProfile,
+  } = useContext(UserContext);
+
   const [editMode, setEditMode] = useState(false);
-  const [error, setError] = useState('');
-  const [success, setSuccess] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
+  const [formData, setFormData] = useState({});
+  const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
-    if (user) {
-      // The user object from AuthContext might already be detailed enough.
-      // If not, or to ensure fresh data, fetch profile explicitly.
-      // For now, we'll use the user from context and allow fetching if needed.
-      
-      // The backend /api/v1/users/profile/ endpoint returns the CustomUser fields
-      // and also the nested role-specific profile (e.g., doctor_profile, patient_profile).
-      // The CustomUserSerializer in backend already includes a 'profile' SerializerMethodField.
-      // Let's assume 'user' from AuthContext contains this structure.
-
-      const initialData = {
-        first_name: user.first_name || '',
-        last_name: user.last_name || '',
-        username: user.username || '',
-        // Role-specific fields - these depend on the structure of `user.profile`
-        // This needs to be dynamic based on user.role
+    if (profile) {
+      const initialFormData = {
+        first_name: profile.user?.first_name || profile.first_name || "",
+        last_name: profile.user?.last_name || profile.last_name || "",
+        username: profile.user?.username || profile.username || "",
+        email: profile.user?.email || profile.email || "", // Email is part of CustomUser
       };
 
-      if (user.role === 'DOCTOR' && user.profile) {
-        initialData.specialization = user.profile.specialization || '';
-        initialData.license_number = user.profile.license_number || '';
-      } else if (user.role === 'NURSE' && user.profile) {
-        initialData.department = user.profile.department || '';
-      } else if (user.role === 'PATIENT' && user.profile) { // Patient profile is directly on Patient model
-        // The 'user.profile' for a patient might be structured differently or might be part of the main 'user' object
-        // from AuthContext if it's fetched from /api/v1/users/profile/ which includes Patient data.
-        // Let's assume the backend /api/v1/users/profile/ for a PATIENT user returns patient-specific fields directly
-        // or nested under a 'patient_profile' key that matches the Patient model.
-        // The `CustomUserSerializer` in `users/serializers.py` has a `get_profile` method.
-        // For a PATIENT, this `get_profile` method in the backend currently returns None.
-        // The patient-specific data (DOB, gender, address etc.) is part of the Patient model,
-        // which is linked OneToOne to CustomUser.
-        // The `/api/v1/users/profile/` endpoint, when accessed by an authenticated user,
-        // should ideally return these patient-specific fields if the user is a PATIENT.
-        // Let's assume the backend's CustomUserSerializer for a patient includes these fields directly or under `patient_profile`.
-        // For now, we'll refer to `user.patient_profile` if it exists, or directly to `user` fields.
-        const patientProfileSource = user.patient_profile || user; // Adjust based on actual API response for patients
-        initialData.date_of_birth = patientProfileSource.date_of_birth || '';
-        initialData.gender = patientProfileSource.gender || '';
-        initialData.address = patientProfileSource.address || '';
-        initialData.phone_number = patientProfileSource.phone_number || '';
-        initialData.emergency_contact_name = patientProfileSource.emergency_contact_name || '';
-        initialData.emergency_contact_phone = patientProfileSource.emergency_contact_phone || '';
+      if (profile.role === USER_ROLES.DOCTOR) {
+        initialFormData.specialization =
+          profile.doctor_profile?.specialization ||
+          profile.specialization ||
+          "";
+        initialFormData.license_number =
+          profile.doctor_profile?.license_number ||
+          profile.license_number ||
+          "";
+      } else if (profile.role === USER_ROLES.NURSE) {
+        initialFormData.department =
+          profile.nurse_profile?.department || profile.department || "";
+      } else if (profile.role === USER_ROLES.PATIENT) {
+        initialFormData.date_of_birth =
+          profile.patient_profile?.date_of_birth || profile.date_of_birth || "";
+        initialFormData.gender =
+          profile.patient_profile?.gender || profile.gender || "";
+        initialFormData.address =
+          profile.patient_profile?.address || profile.address || "";
+        initialFormData.phone_number =
+          profile.patient_profile?.phone_number || profile.phone_number || "";
+        initialFormData.emergency_contact_name =
+          profile.patient_profile?.emergency_contact_name ||
+          profile.emergency_contact_name ||
+          "";
+        initialFormData.emergency_contact_phone =
+          profile.patient_profile?.emergency_contact_phone ||
+          profile.emergency_contact_phone ||
+          "";
       }
-      setProfileData(initialData);
-    } else if (!authLoading && !user && token) {
-        // Token exists but user is not set in context yet (e.g. after a refresh and context is re-initializing)
-        // Try to fetch profile again. AuthContext also does this, but this is a fallback.
-        const fetchProfile = async () => {
-            try {
-                setIsLoading(true);
-                const fetchedUser = await getUserProfile(); // from api/auth.js
-                setUser(fetchedUser); // Update context
-                // Now setProfileData based on fetchedUser (logic similar to above)
-                 const initialData = {
-                    first_name: fetchedUser.first_name || '',
-                    last_name: fetchedUser.last_name || '',
-                    username: fetchedUser.username || '',
-                };
-                if (fetchedUser.role === 'DOCTOR' && fetchedUser.profile) {
-                    initialData.specialization = fetchedUser.profile.specialization || '';
-                    initialData.license_number = fetchedUser.profile.license_number || '';
-                } // ... add other roles
-                setProfileData(initialData);
-            } catch (err) {
-                setError("Could not load profile data.");
-                console.error(err);
-            } finally {
-                setIsLoading(false);
-            }
-        };
-        fetchProfile();
+      setFormData(initialFormData);
     }
-
-
-  }, [user, authLoading, token, setUser]);
+  }, [profile]);
 
   const handleChange = (e) => {
-    setProfileData({ ...profileData, [e.target.name]: e.target.value });
+    setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError('');
-    setSuccess('');
-    setIsLoading(true);
-
-    // Prepare data for API: only send fields that are part of UserProfileUpdateSerializer
-    const updatePayload = {
-      first_name: profileData.first_name,
-      last_name: profileData.last_name,
-      username: profileData.username,
-    };
-
-    if (user.role === 'DOCTOR') {
-      updatePayload.doctor_profile = {
-        specialization: profileData.specialization,
-        license_number: profileData.license_number,
-      };
-    } else if (user.role === 'NURSE') {
-      updatePayload.nurse_profile = {
-        department: profileData.department,
-      };
-    } else if (user.role === 'PATIENT') {
-        // Patient specific fields are updated via PATCH /api/v1/patients/<user__id>/
-        // The /api/v1/users/profile/ PUT might only handle CustomUser fields and linked role profiles
-        // like DoctorProfile, NurseProfile. For Patient, it's different.
-        // UserProfileUpdateSerializer in backend only handles first_name, last_name, username, doctor_profile, nurse_profile.
-        // So, for a patient, we might need a different endpoint or the backend UserProfileUpdateSerializer needs adjustment.
-        // For now, this example will only update basic user fields for a patient via this form.
-        // A separate "Edit Patient Demographics" form would use the patients API.
-        // Let's assume for now that the UserProfileUpdateSerializer on the backend
-        // can handle patient-specific fields if they are sent, or they are ignored.
-        // This part needs clarification based on backend capabilities of PUT /api/v1/users/profile/ for patients.
-        // Based on `UserProfileUpdateSerializer` in `users/serializers.py`, it does NOT handle patient-specific fields.
-        // It handles `doctor_profile` and `nurse_profile`.
-        // So, for PATIENT, only first_name, last_name, username can be updated here.
-    }
-
+    setError("");
+    setSuccess("");
+    setIsSubmitting(true);
 
     try {
-      const updatedUser = await updateUserProfile(updatePayload); // from api/auth.js
-      setUser(updatedUser); // Update user in AuthContext
-      localStorage.setItem('userData', JSON.stringify(updatedUser)); // Update localStorage
-      setSuccess('Profile updated successfully!');
+      const userUpdatePayload = {
+        first_name: formData.first_name,
+        last_name: formData.last_name,
+        username: formData.username,
+        // Email is generally not updated here by user, but by admin or separate process
+      };
+
+      let profileSpecificPayload = {};
+      if (profile.role === USER_ROLES.DOCTOR) {
+        profileSpecificPayload = {
+          specialization: formData.specialization,
+          license_number: formData.license_number,
+        };
+      } else if (profile.role === USER_ROLES.NURSE) {
+        profileSpecificPayload = {
+          department: formData.department,
+        };
+      } else if (profile.role === USER_ROLES.PATIENT) {
+        profileSpecificPayload = {
+          date_of_birth: formData.date_of_birth,
+          gender: formData.gender,
+          address: formData.address,
+          phone_number: formData.phone_number,
+          emergency_contact_name: formData.emergency_contact_name,
+          emergency_contact_phone: formData.emergency_contact_phone,
+        };
+      }
+
+      // Update CustomUser fields (first_name, last_name, username) via usersApi.updateUserById
+      // The API structure might need adjustment if /users/profile/me only updates CustomUser fields
+      // and separate endpoints are needed for role-specific profiles.
+      // For now, assuming updateUserSpecificProfile in UserContext handles this logic.
+
+      await usersApi.updateUserById(authUser.id, userUpdatePayload); // Update core user fields
+
+      if (Object.keys(profileSpecificPayload).length > 0) {
+        await updateUserSpecificProfile(
+          authUser.id,
+          profileSpecificPayload,
+          profile.role
+        ); // Update role-specific profile
+      } else {
+        // If no specific profile fields, refresh main profile from context after CustomUser update
+        const refreshedProfile = await usersApi.authApi.getUserProfile();
+        setProfile(refreshedProfile); // Update UserContext
+      }
+
+      setSuccess("Profile updated successfully!");
       setEditMode(false);
     } catch (err) {
-      setError(err.message || 'Failed to update profile.');
+      setError(err.message || "Failed to update profile.");
+      console.error("Profile update error:", err);
     } finally {
-      setIsLoading(false);
+      setIsSubmitting(false);
     }
   };
 
-  if (authLoading || isLoading || !profileData) {
+  const effectiveProfile = profile || {}; // Use empty object if profile is null
+  const userDetails = effectiveProfile.user || effectiveProfile; // Handle nested user object if present
+
+  if (authLoading || loadingProfile) {
     return (
-      <div className="container mt-5 text-center">
-        <div className="spinner-border text-primary" role="status">
-          <span className="visually-hidden">Loading profile...</span>
+      <PageWithSidebar title="My Profile">
+        <div className="flex justify-center items-center h-64">
+          <LoadingSpinner message="Loading profile..." />
         </div>
-        <p>Loading profile...</p>
-      </div>
+      </PageWithSidebar>
     );
   }
 
-  if (!user) {
-    return <div className="container mt-5"><p className="text-danger">User not found. Please log in.</p></div>;
+  if (profileError) {
+    return (
+      <PageWithSidebar title="My Profile - Error">
+        <div
+          className="bg-red-100 border-l-4 border-red-500 text-red-700 p-4"
+          role="alert"
+        >
+          <p className="font-bold">Error Loading Profile</p>
+          <p>{profileError}</p>
+        </div>
+      </PageWithSidebar>
+    );
+  }
+
+  if (!authUser || !profile) {
+    return (
+      <PageWithSidebar title="My Profile">
+        <div className="text-center p-8">
+          <p className="text-gray-600">
+            User profile data is not available. Please try logging in again.
+          </p>
+        </div>
+      </PageWithSidebar>
+    );
   }
 
   return (
-    <div className="container mt-5 mb-5">
-      <div className="row justify-content-center">
-        <div className="col-md-8 col-lg-7">
-          <div className="card shadow-sm">
-            <div className="card-body p-4">
-              <div className="d-flex justify-content-between align-items-center mb-4">
-                <h2 className="card-title mb-0">My Profile</h2>
-                {!editMode && (
-                  <button className="btn btn-outline-secondary btn-sm" onClick={() => setEditMode(true)}>
-                    Edit Profile
-                  </button>
-                )}
-              </div>
-
-              {error && <div className="alert alert-danger">{error}</div>}
-              {success && <div className="alert alert-success">{success}</div>}
-
-              <form onSubmit={handleSubmit}>
-                <div className="mb-3">
-                  <label htmlFor="emailDisplay" className="form-label">Email</label>
-                  <input type="email" id="emailDisplay" className="form-control" value={user.email} disabled readOnly />
-                </div>
-                <div className="mb-3">
-                  <label htmlFor="roleDisplay" className="form-label">Role</label>
-                  <input type="text" id="roleDisplay" className="form-control" value={user.role_display || user.role} disabled readOnly />
-                </div>
-                <div className="mb-3">
-                  <label htmlFor="username" className="form-label">Username</label>
-                  <input type="text" name="username" id="username" className="form-control" value={profileData.username} onChange={handleChange} disabled={!editMode} />
-                </div>
-                <div className="mb-3">
-                  <label htmlFor="first_name" className="form-label">First Name</label>
-                  <input type="text" name="first_name" id="first_name" className="form-control" value={profileData.first_name} onChange={handleChange} disabled={!editMode} />
-                </div>
-                <div className="mb-3">
-                  <label htmlFor="last_name" className="form-label">Last Name</label>
-                  <input type="text" name="last_name" id="last_name" className="form-control" value={profileData.last_name} onChange={handleChange} disabled={!editMode} />
-                </div>
-
-                {/* Role-Specific Fields */}
-                {user.role === 'DOCTOR' && (
-                  <>
-                    <div className="mb-3">
-                      <label htmlFor="specialization" className="form-label">Specialization</label>
-                      <input type="text" name="specialization" id="specialization" className="form-control" value={profileData.specialization || ''} onChange={handleChange} disabled={!editMode} />
-                    </div>
-                    <div className="mb-3">
-                      <label htmlFor="license_number" className="form-label">License Number</label>
-                      <input type="text" name="license_number" id="license_number" className="form-control" value={profileData.license_number || ''} onChange={handleChange} disabled={!editMode} />
-                    </div>
-                  </>
-                )}
-
-                {user.role === 'NURSE' && (
-                  <div className="mb-3">
-                    <label htmlFor="department" className="form-label">Department</label>
-                    <input type="text" name="department" id="department" className="form-control" value={profileData.department || ''} onChange={handleChange} disabled={!editMode} />
-                  </div>
-                )}
-                
-                {/* Patient specific fields are typically managed via /api/v1/patients/<user_id>/ endpoint */}
-                {/* This form currently only updates CustomUser and Doctor/Nurse profiles via /api/v1/users/profile/ */}
-                {user.role === 'PATIENT' && (
-                  <>
-                    <p className="text-muted small">To update address, phone, or emergency contacts, please visit the dedicated patient information section (to be implemented).</p>
-                    <div className="mb-3">
-                      <label htmlFor="date_of_birth" className="form-label">Date of Birth</label>
-                      <input type="date" name="date_of_birth" id="date_of_birth" className="form-control" value={profileData.date_of_birth || ''} onChange={handleChange} disabled={true} />
-                    </div>
-                     <div className="mb-3">
-                      <label htmlFor="gender" className="form-label">Gender</label>
-                      <input type="text" name="gender" id="gender" className="form-control" value={profileData.gender || ''} onChange={handleChange} disabled={true} />
-                    </div>
-                    {/* Add other read-only patient fields if desired */}
-                  </>
-                )}
-
-
-                {editMode && (
-                  <div className="d-flex justify-content-end">
-                    <button type="button" className="btn btn-secondary me-2" onClick={() => { setEditMode(false); setError(''); setSuccess(''); /* Reset form to original user data */ setProfileData(user); }}>
-                      Cancel
-                    </button>
-                    <button type="submit" className="btn btn-primary" disabled={isLoading}>
-                      {isLoading ? 'Saving...' : 'Save Changes'}
-                    </button>
-                  </div>
-                )}
-              </form>
-            </div>
+    <ProtectedRoute>
+      <PageWithSidebar title="My Profile">
+        <div className="max-w-3xl mx-auto bg-white p-6 md:p-8 rounded-lg shadow-xl">
+          <div className="flex justify-between items-center mb-6 pb-4 border-b">
+            <h2 className="text-2xl font-semibold text-gray-800">
+              {userDetails.first_name} {userDetails.last_name}'s Profile
+            </h2>
+            {!editMode && (
+              <button
+                onClick={() => setEditMode(true)}
+                className="px-4 py-2 bg-blue-500 text-white text-sm font-medium rounded-md hover:bg-blue-600 transition"
+              >
+                Edit Profile
+              </button>
+            )}
           </div>
+
+          {error && (
+            <div className="mb-4 p-3 bg-red-100 border-l-4 border-red-500 text-red-700 rounded-md text-sm">
+              {error}
+            </div>
+          )}
+          {success && (
+            <div className="mb-4 p-3 bg-green-100 border-l-4 border-green-500 text-green-700 rounded-md text-sm">
+              {success}
+            </div>
+          )}
+
+          <form onSubmit={handleSubmit} className="space-y-6">
+            <div>
+              <label
+                htmlFor="emailDisplay"
+                className="block text-sm font-medium text-gray-700"
+              >
+                Email
+              </label>
+              <input
+                type="email"
+                id="emailDisplay"
+                className="mt-1 block w-full px-3 py-2 bg-gray-100 border border-gray-300 rounded-md shadow-sm sm:text-sm"
+                value={userDetails.email || ""}
+                disabled
+                readOnly
+              />
+            </div>
+            <div>
+              <label
+                htmlFor="roleDisplay"
+                className="block text-sm font-medium text-gray-700"
+              >
+                Role
+              </label>
+              <input
+                type="text"
+                id="roleDisplay"
+                className="mt-1 block w-full px-3 py-2 bg-gray-100 border border-gray-300 rounded-md shadow-sm sm:text-sm"
+                value={profile.role_display || profile.role || ""}
+                disabled
+                readOnly
+              />
+            </div>
+            <div>
+              <label
+                htmlFor="username"
+                className="block text-sm font-medium text-gray-700"
+              >
+                Username
+              </label>
+              <input
+                type="text"
+                name="username"
+                id="username"
+                className={`mt-1 block w-full px-3 py-2 border rounded-md shadow-sm sm:text-sm ${
+                  !editMode
+                    ? "bg-gray-100 border-gray-300"
+                    : "border-gray-300 focus:ring-indigo-500 focus:border-indigo-500"
+                }`}
+                value={formData.username || ""}
+                onChange={handleChange}
+                disabled={!editMode}
+              />
+            </div>
+            <div>
+              <label
+                htmlFor="first_name"
+                className="block text-sm font-medium text-gray-700"
+              >
+                First Name
+              </label>
+              <input
+                type="text"
+                name="first_name"
+                id="first_name"
+                className={`mt-1 block w-full px-3 py-2 border rounded-md shadow-sm sm:text-sm ${
+                  !editMode
+                    ? "bg-gray-100 border-gray-300"
+                    : "border-gray-300 focus:ring-indigo-500 focus:border-indigo-500"
+                }`}
+                value={formData.first_name || ""}
+                onChange={handleChange}
+                disabled={!editMode}
+              />
+            </div>
+            <div>
+              <label
+                htmlFor="last_name"
+                className="block text-sm font-medium text-gray-700"
+              >
+                Last Name
+              </label>
+              <input
+                type="text"
+                name="last_name"
+                id="last_name"
+                className={`mt-1 block w-full px-3 py-2 border rounded-md shadow-sm sm:text-sm ${
+                  !editMode
+                    ? "bg-gray-100 border-gray-300"
+                    : "border-gray-300 focus:ring-indigo-500 focus:border-indigo-500"
+                }`}
+                value={formData.last_name || ""}
+                onChange={handleChange}
+                disabled={!editMode}
+              />
+            </div>
+
+            {profile.role === USER_ROLES.DOCTOR && (
+              <>
+                <div>
+                  <label
+                    htmlFor="specialization"
+                    className="block text-sm font-medium text-gray-700"
+                  >
+                    Specialization
+                  </label>
+                  <input
+                    type="text"
+                    name="specialization"
+                    id="specialization"
+                    className={`mt-1 block w-full px-3 py-2 border rounded-md shadow-sm sm:text-sm ${
+                      !editMode
+                        ? "bg-gray-100 border-gray-300"
+                        : "border-gray-300 focus:ring-indigo-500 focus:border-indigo-500"
+                    }`}
+                    value={formData.specialization || ""}
+                    onChange={handleChange}
+                    disabled={!editMode}
+                  />
+                </div>
+                <div>
+                  <label
+                    htmlFor="license_number"
+                    className="block text-sm font-medium text-gray-700"
+                  >
+                    License Number
+                  </label>
+                  <input
+                    type="text"
+                    name="license_number"
+                    id="license_number"
+                    className={`mt-1 block w-full px-3 py-2 border rounded-md shadow-sm sm:text-sm ${
+                      !editMode
+                        ? "bg-gray-100 border-gray-300"
+                        : "border-gray-300 focus:ring-indigo-500 focus:border-indigo-500"
+                    }`}
+                    value={formData.license_number || ""}
+                    onChange={handleChange}
+                    disabled={!editMode}
+                  />
+                </div>
+              </>
+            )}
+
+            {profile.role === USER_ROLES.NURSE && (
+              <div>
+                <label
+                  htmlFor="department"
+                  className="block text-sm font-medium text-gray-700"
+                >
+                  Department
+                </label>
+                <input
+                  type="text"
+                  name="department"
+                  id="department"
+                  className={`mt-1 block w-full px-3 py-2 border rounded-md shadow-sm sm:text-sm ${
+                    !editMode
+                      ? "bg-gray-100 border-gray-300"
+                      : "border-gray-300 focus:ring-indigo-500 focus:border-indigo-500"
+                  }`}
+                  value={formData.department || ""}
+                  onChange={handleChange}
+                  disabled={!editMode}
+                />
+              </div>
+            )}
+
+            {profile.role === USER_ROLES.PATIENT && (
+              <>
+                <div>
+                  <label
+                    htmlFor="date_of_birth"
+                    className="block text-sm font-medium text-gray-700"
+                  >
+                    Date of Birth
+                  </label>
+                  <input
+                    type="date"
+                    name="date_of_birth"
+                    id="date_of_birth"
+                    className={`mt-1 block w-full px-3 py-2 border rounded-md shadow-sm sm:text-sm ${
+                      !editMode
+                        ? "bg-gray-100 border-gray-300"
+                        : "border-gray-300 focus:ring-indigo-500 focus:border-indigo-500"
+                    }`}
+                    value={formData.date_of_birth || ""}
+                    onChange={handleChange}
+                    disabled={!editMode}
+                  />
+                </div>
+                <div>
+                  <label
+                    htmlFor="gender"
+                    className="block text-sm font-medium text-gray-700"
+                  >
+                    Gender
+                  </label>
+                  <select
+                    name="gender"
+                    id="gender"
+                    className={`mt-1 block w-full px-3 py-2 border rounded-md shadow-sm sm:text-sm ${
+                      !editMode
+                        ? "bg-gray-100 border-gray-300"
+                        : "border-gray-300 focus:ring-indigo-500 focus:border-indigo-500"
+                    }`}
+                    value={formData.gender || ""}
+                    onChange={handleChange}
+                    disabled={!editMode}
+                  >
+                    <option value="">Select Gender</option>
+                    <option value="MALE">Male</option>
+                    <option value="FEMALE">Female</option>
+                    <option value="OTHER">Other</option>
+                    <option value="PREFER_NOT_TO_SAY">Prefer not to say</option>
+                  </select>
+                </div>
+                <div>
+                  <label
+                    htmlFor="address"
+                    className="block text-sm font-medium text-gray-700"
+                  >
+                    Address
+                  </label>
+                  <textarea
+                    name="address"
+                    id="address"
+                    rows="3"
+                    className={`mt-1 block w-full px-3 py-2 border rounded-md shadow-sm sm:text-sm ${
+                      !editMode
+                        ? "bg-gray-100 border-gray-300"
+                        : "border-gray-300 focus:ring-indigo-500 focus:border-indigo-500"
+                    }`}
+                    value={formData.address || ""}
+                    onChange={handleChange}
+                    disabled={!editMode}
+                  ></textarea>
+                </div>
+                <div>
+                  <label
+                    htmlFor="phone_number"
+                    className="block text-sm font-medium text-gray-700"
+                  >
+                    Phone Number
+                  </label>
+                  <input
+                    type="tel"
+                    name="phone_number"
+                    id="phone_number"
+                    className={`mt-1 block w-full px-3 py-2 border rounded-md shadow-sm sm:text-sm ${
+                      !editMode
+                        ? "bg-gray-100 border-gray-300"
+                        : "border-gray-300 focus:ring-indigo-500 focus:border-indigo-500"
+                    }`}
+                    value={formData.phone_number || ""}
+                    onChange={handleChange}
+                    disabled={!editMode}
+                  />
+                </div>
+                <fieldset className="mt-4 border border-gray-300 p-4 rounded-md">
+                  <legend className="text-sm font-medium text-gray-700 px-1">
+                    Emergency Contact
+                  </legend>
+                  <div className="space-y-4">
+                    <div>
+                      <label
+                        htmlFor="emergency_contact_name"
+                        className="block text-sm font-medium text-gray-700"
+                      >
+                        Name
+                      </label>
+                      <input
+                        type="text"
+                        name="emergency_contact_name"
+                        id="emergency_contact_name"
+                        className={`mt-1 block w-full px-3 py-2 border rounded-md shadow-sm sm:text-sm ${
+                          !editMode
+                            ? "bg-gray-100 border-gray-300"
+                            : "border-gray-300 focus:ring-indigo-500 focus:border-indigo-500"
+                        }`}
+                        value={formData.emergency_contact_name || ""}
+                        onChange={handleChange}
+                        disabled={!editMode}
+                      />
+                    </div>
+                    <div>
+                      <label
+                        htmlFor="emergency_contact_phone"
+                        className="block text-sm font-medium text-gray-700"
+                      >
+                        Phone
+                      </label>
+                      <input
+                        type="tel"
+                        name="emergency_contact_phone"
+                        id="emergency_contact_phone"
+                        className={`mt-1 block w-full px-3 py-2 border rounded-md shadow-sm sm:text-sm ${
+                          !editMode
+                            ? "bg-gray-100 border-gray-300"
+                            : "border-gray-300 focus:ring-indigo-500 focus:border-indigo-500"
+                        }`}
+                        value={formData.emergency_contact_phone || ""}
+                        onChange={handleChange}
+                        disabled={!editMode}
+                      />
+                    </div>
+                  </div>
+                </fieldset>
+              </>
+            )}
+
+            {editMode && (
+              <div className="flex justify-end space-x-3 pt-5">
+                <button
+                  type="button"
+                  className="px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition"
+                  onClick={() => {
+                    setEditMode(false);
+                    setError("");
+                    setSuccess("");
+                    setFormData(
+                      profile
+                        ? {
+                            first_name:
+                              profile.user?.first_name ||
+                              profile.first_name ||
+                              "",
+                            last_name:
+                              profile.user?.last_name ||
+                              profile.last_name ||
+                              "",
+                            username:
+                              profile.user?.username || profile.username || "",
+                            email: profile.user?.email || profile.email || "",
+                            specialization:
+                              profile.doctor_profile?.specialization ||
+                              profile.specialization ||
+                              "",
+                            license_number:
+                              profile.doctor_profile?.license_number ||
+                              profile.license_number ||
+                              "",
+                            department:
+                              profile.nurse_profile?.department ||
+                              profile.department ||
+                              "",
+                            date_of_birth:
+                              profile.patient_profile?.date_of_birth ||
+                              profile.date_of_birth ||
+                              "",
+                            gender:
+                              profile.patient_profile?.gender ||
+                              profile.gender ||
+                              "",
+                            address:
+                              profile.patient_profile?.address ||
+                              profile.address ||
+                              "",
+                            phone_number:
+                              profile.patient_profile?.phone_number ||
+                              profile.phone_number ||
+                              "",
+                            emergency_contact_name:
+                              profile.patient_profile?.emergency_contact_name ||
+                              profile.emergency_contact_name ||
+                              "",
+                            emergency_contact_phone:
+                              profile.patient_profile
+                                ?.emergency_contact_phone ||
+                              profile.emergency_contact_phone ||
+                              "",
+                          }
+                        : {}
+                    );
+                  }}
+                  disabled={isSubmitting}
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="px-4 py-2 bg-green-600 text-white font-medium rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 disabled:opacity-50 transition"
+                  disabled={isSubmitting}
+                >
+                  {isSubmitting ? <LoadingSpinner size="sm" /> : "Save Changes"}
+                </button>
+              </div>
+            )}
+          </form>
         </div>
-      </div>
-    </div>
+      </PageWithSidebar>
+    </ProtectedRoute>
   );
 };
 

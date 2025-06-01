@@ -1,26 +1,24 @@
 import React, { useEffect, useState, useContext } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import AppointmentForm from "../../components/appointments/AppointmentForm";
-import Sidebar from "../../components/common/Sidebar"; // Assuming a Sidebar component for layout
-import PageWithSidebar from "../../routes/PageWithSidebar"; // Or a more general layout component
-import { appointmentsApi } from "../../api"; // Assuming appointmentsApi.getAppointmentDetails exists
+import PageWithSidebar from "../../routes/PageWithSidebar";
+import { appointmentsApi } from "../../api";
 import LoadingSpinner from "../../components/common/LoadingSpinner";
 import { AuthContext } from "../../context/AuthContext";
 import { USER_ROLES } from "../../utils/constants";
+import RoleBasedRoute from "../../components/common/RoleBasedRoute";
 
-/**
- * @file AppointmentEditPage.jsx
- * @description Page for editing an existing appointment.
- * Fetches appointment details and passes them to AppointmentForm.
- */
 const AppointmentEditPage = () => {
   const { appointmentId } = useParams();
   const navigate = useNavigate();
   const { user: currentUser } = useContext(AuthContext);
 
-  const [existingAppointmentData, setExistingAppointmentData] = useState(null);
+  const [appointmentTitle, setAppointmentTitle] = useState(
+    `Edit Appointment #${appointmentId}`
+  );
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState("");
+  const [canEditThis, setCanEditThis] = useState(false);
 
   useEffect(() => {
     if (!appointmentId) {
@@ -29,25 +27,46 @@ const AppointmentEditPage = () => {
       return;
     }
 
-    const fetchAppointment = async () => {
+    const fetchAppointmentAndCheckPerms = async () => {
       setIsLoading(true);
       setError("");
       try {
         const data = await appointmentsApi.getAppointmentDetails(appointmentId);
 
-        // Basic permission check: Can the current user edit this specific appointment?
-        // Admins and Receptionists can edit any. Doctors can edit their own.
-        const canEdit =
+        let hasPermission = false;
+        if (
           currentUser.role === USER_ROLES.ADMIN ||
-          currentUser.role === USER_ROLES.RECEPTIONIST ||
-          (currentUser.role === USER_ROLES.DOCTOR &&
-            data.doctor_details?.id === currentUser.id);
+          currentUser.role === USER_ROLES.RECEPTIONIST
+        ) {
+          hasPermission = true;
+        } else if (
+          currentUser.role === USER_ROLES.DOCTOR &&
+          data.doctor_details?.id === currentUser.id
+        ) {
+          hasPermission = true;
+        }
 
-        if (!canEdit) {
+        if (!hasPermission) {
           setError("You do not have permission to edit this appointment.");
-          setExistingAppointmentData(null); // Prevent form rendering
+          setCanEditThis(false);
+        } else if (
+          data.status === "COMPLETED" ||
+          data.status === "CANCELLED_BY_PATIENT" ||
+          data.status === "CANCELLED_BY_STAFF"
+        ) {
+          setError(
+            `Appointment is ${
+              data.status_display || data.status
+            } and cannot be edited.`
+          );
+          setCanEditThis(false);
         } else {
-          setExistingAppointmentData(data);
+          setAppointmentTitle(
+            `Edit Appt for ${data.patient_details?.user?.first_name} with Dr. ${
+              data.doctor_details?.last_name
+            } on ${new Date(data.appointment_date_time).toLocaleDateString()}`
+          );
+          setCanEditThis(true);
         }
       } catch (err) {
         setError(
@@ -55,21 +74,20 @@ const AppointmentEditPage = () => {
             `Failed to fetch appointment details for ID ${appointmentId}.`
         );
         console.error("Error fetching appointment for edit:", err);
+        setCanEditThis(false);
       } finally {
         setIsLoading(false);
       }
     };
 
     if (currentUser) {
-      // Ensure currentUser is loaded before trying to fetch/check permissions
-      fetchAppointment();
+      fetchAppointmentAndCheckPerms();
     } else {
-      setIsLoading(false); // If no current user, stop loading, ProtectedRoute should handle redirect
+      setIsLoading(false); // Should be caught by RoleBasedRoute if no user
     }
   }, [appointmentId, currentUser]);
 
   const handleFormSuccess = () => {
-    // After successful update, navigate to the appointment details page or list
     navigate(`/appointments/${appointmentId}`, {
       replace: true,
       state: { message: "Appointment updated successfully!" },
@@ -96,39 +114,56 @@ const AppointmentEditPage = () => {
           <p className="font-bold">Error</p>
           <p>{error}</p>
         </div>
+        <button
+          onClick={() => navigate("/appointments")}
+          className="mt-4 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors"
+        >
+          Back to Appointments
+        </button>
       </PageWithSidebar>
     );
   }
 
-  if (!existingAppointmentData && !isLoading) {
+  if (!canEditThis && !isLoading) {
     return (
-      <PageWithSidebar title="Edit Appointment">
+      <PageWithSidebar title="Edit Appointment - Error">
         <div
           className="bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700 p-4"
           role="alert"
         >
-          <p className="font-bold">Not Found</p>
+          <p className="font-bold">Access Denied or Invalid Action</p>
           <p>
-            Appointment data could not be loaded, or you do not have permission
-            to edit it.
+            You may not have permission to edit this appointment, or it's in a
+            non-editable state.
           </p>
         </div>
+        <button
+          onClick={() => navigate("/appointments")}
+          className="mt-4 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors"
+        >
+          Back to Appointments
+        </button>
       </PageWithSidebar>
     );
   }
 
   return (
-    <PageWithSidebar title={`Edit Appointment #${appointmentId}`}>
-      <div className="bg-white p-6 rounded-lg shadow-xl">
-        {existingAppointmentData && (
+    <RoleBasedRoute
+      allowedRoles={[
+        USER_ROLES.ADMIN,
+        USER_ROLES.RECEPTIONIST,
+        USER_ROLES.DOCTOR,
+      ]}
+    >
+      <PageWithSidebar title={appointmentTitle}>
+        <div className="bg-white p-6 rounded-lg shadow-xl">
           <AppointmentForm
-            appointmentId={appointmentId} // Pass the ID to indicate edit mode
-            // existingAppointmentData is implicitly handled by AppointmentForm's useEffect when appointmentId is present
-            onFormSubmitSuccess={handleFormSuccess} // Renamed prop for clarity
+            appointmentId={appointmentId}
+            onFormSubmitSuccess={handleFormSuccess} // Ensure AppointmentForm calls this on success
           />
-        )}
-      </div>
-    </PageWithSidebar>
+        </div>
+      </PageWithSidebar>
+    </RoleBasedRoute>
   );
 };
 

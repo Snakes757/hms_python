@@ -1,16 +1,16 @@
-// src/pages/dashboard/NurseDashboardPage.jsx
-import React from 'react';
-import NurseDashboard from '../../components/dashboard/NurseDashboard';
-import Sidebar from '../../components/common/Sidebar';
+import React from "react";
+import NurseDashboard from "../../components/dashboard/NurseDashboard";
+import PageWithSidebar from "../../routes/PageWithSidebar";
+import ProtectedRoute from "../../components/common/ProtectedRoute";
+import { USER_ROLES } from "../../utils/constants";
 
 const NurseDashboardPage = () => {
   return (
-    <div className="d-flex">
-      <Sidebar />
-      <div className="container-fluid mt-0 p-0 flex-grow-1">
+    <ProtectedRoute requiredRole={USER_ROLES.NURSE}>
+      <PageWithSidebar title="Nurse Dashboard">
         <NurseDashboard />
-      </div>
-    </div>
+      </PageWithSidebar>
+    </ProtectedRoute>
   );
 };
 

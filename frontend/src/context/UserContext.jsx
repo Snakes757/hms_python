@@ -1,51 +1,77 @@
-// src/api/index.js
-// Central export point for all API module functions.
+import React, { createContext, useState, useEffect, useContext } from "react";
+import { AuthContext } from "./AuthContext";
+import { usersApi } from "../api";
 
-// Auth related API calls
-export * as authApi from './auth';
+export const UserContext = createContext(null);
 
-// User management (typically admin) API calls
-export * as usersApi from './users';
+export const UserProvider = ({ children }) => {
+  const { user: authUser, token } = useContext(AuthContext);
+  const [profile, setProfile] = useState(null);
+  const [loadingProfile, setLoadingProfile] = useState(false);
+  const [profileError, setProfileError] = useState(null);
 
-// Patient related API calls
-export * as patientsApi from './patients';
+  useEffect(() => {
+    const fetchUserProfile = async () => {
+      if (authUser && token) {
+        setLoadingProfile(true);
+        setProfileError(null);
+        try {
+          let userDetails;
+          if (authUser.role === "ADMIN" && authUser.id) {
+            userDetails = await usersApi.getUserById(authUser.id);
+          } else {
+            userDetails = await usersApi.authApi.getUserProfile();
+          }
+          setProfile(userDetails);
+        } catch (error) {
+          console.error("Failed to fetch user profile in UserContext:", error);
+          setProfileError(error.message || "Could not load profile.");
+        } finally {
+          setLoadingProfile(false);
+        }
+      } else {
+        setProfile(null);
+      }
+    };
 
-// Medical Records (general part of patients module in backend)
-export * as medicalRecordsApi from './medicalRecords';
+    fetchUserProfile();
+  }, [authUser, token]);
 
-// Appointments API calls
-export * as appointmentsApi from './appointments';
+  const updateUserSpecificProfile = async (userId, profileData, role) => {
+    setLoadingProfile(true);
+    setProfileError(null);
+    try {
+      let updatedProfile;
+      if (role === "PATIENT") {
+        updatedProfile = await usersApi.patientsApi.updatePatientByUserId(
+          userId,
+          profileData
+        );
+      } else {
+        updatedProfile = await usersApi.updateUserById(userId, profileData);
+      }
+      setProfile((prevProfile) => ({ ...prevProfile, ...updatedProfile }));
+      return updatedProfile;
+    } catch (error) {
+      console.error("Failed to update user-specific profile:", error);
+      setProfileError(error.message || "Could not update profile.");
+      throw error;
+    } finally {
+      setLoadingProfile(false);
+    }
+  };
 
-// Prescriptions (part of medical_management module in backend)
-export * as prescriptionsApi from './prescriptions';
-
-// Treatments (part of medical_management module in backend)
-export * as treatmentsApi from './treatments';
-
-// Observations (part of medical_management module in backend)
-export * as observationsApi from './observations';
-
-// Billing API calls
-export * as billingApi from './billing';
-
-// Telemedicine API calls
-export * as telemedicineApi from './telemedicine';
-
-// Inquiries API calls
-export * as inquiriesApi from './inquiries';
-
-// Reports (Admin Dashboard) API calls
-export * as reportsApi from './reports';
-
-// Example usage in a component:
-// import { authApi, patientsApi } from '../api';
-//
-// const handleLogin = async (credentials) => {
-//   const user = await authApi.loginUser(credentials);
-//   // ...
-// };
-//
-// const fetchPatients = async () => {
-//   const patientList = await patientsApi.listAllPatients();
-//   // ...
-// };
+  return (
+    <UserContext.Provider
+      value={{
+        profile,
+        loadingProfile,
+        profileError,
+        updateUserSpecificProfile,
+        setProfile,
+      }}
+    >
+      {children}
+    </UserContext.Provider>
+  );
+};

@@ -1,13 +1,16 @@
-// src/pages/admin/UserCreatePage.jsx
-import React from 'react';
-import UserCreateForm from '../../components/admin/UserCreateForm';
-import PageWithSidebar from '../../routes/PageWithSidebar';
+import React from "react";
+import UserCreateForm from "./UserCreateForm"; // Corrected path
+import PageWithSidebar from "../../routes/PageWithSidebar";
+import ProtectedRoute from "../../components/common/ProtectedRoute";
+import { USER_ROLES } from "../../utils/constants";
 
 const UserCreatePage = () => {
   return (
-    <PageWithSidebar title="Create New User (Admin)">
-      <UserCreateForm />
-    </PageWithSidebar>
+    <ProtectedRoute requiredRole={USER_ROLES.ADMIN}>
+      <PageWithSidebar title="Create New User (Admin)">
+        <UserCreateForm />
+      </PageWithSidebar>
+    </ProtectedRoute>
   );
 };
 

@@ -1,16 +1,16 @@
-// src/pages/dashboard/BillingDashboardPage.jsx
-import React from 'react';
-import BillingDashboard from '../../components/billing/BillingDashboard'; // Component created in previous batch
-import Sidebar from '../../components/common/Sidebar';
+import React from "react";
+import BillingDashboard from "../../components/billing/BillingDashboard";
+import PageWithSidebar from "../../routes/PageWithSidebar";
+import RoleBasedRoute from "../../components/common/RoleBasedRoute";
+import { USER_ROLES } from "../../utils/constants";
 
 const BillingDashboardPage = () => {
   return (
-    <div className="d-flex">
-      <Sidebar />
-      <div className="container-fluid mt-0 p-0 flex-grow-1"> {/* Use p-0 if dashboard handles its own padding */}
+    <RoleBasedRoute allowedRoles={[USER_ROLES.ADMIN, USER_ROLES.RECEPTIONIST]}>
+      <PageWithSidebar title="Billing Dashboard">
         <BillingDashboard />
-      </div>
-    </div>
+      </PageWithSidebar>
+    </RoleBasedRoute>
   );
 };
 

@@ -1,17 +1,16 @@
-// src/pages/dashboard/DoctorDashboardPage.jsx
-import React from 'react';
-import DoctorDashboard from '../../components/dashboard/DoctorDashboard';
-import Sidebar from '../../components/common/Sidebar';
+import React from "react";
+import DoctorDashboard from "../../components/dashboard/DoctorDashboard";
+import PageWithSidebar from "../../routes/PageWithSidebar";
+import ProtectedRoute from "../../components/common/ProtectedRoute";
+import { USER_ROLES } from "../../utils/constants";
 
 const DoctorDashboardPage = () => {
   return (
-    <div className="d-flex">
-      <Sidebar />
-      <div className="container-fluid mt-0 p-0 flex-grow-1"> {/* Use p-0 if dashboard handles its own padding */}
-        {/* No explicit title here, DoctorDashboard component has its own title */}
+    <ProtectedRoute requiredRole={USER_ROLES.DOCTOR}>
+      <PageWithSidebar title="Doctor Dashboard">
         <DoctorDashboard />
-      </div>
-    </div>
+      </PageWithSidebar>
+    </ProtectedRoute>
   );
 };
 

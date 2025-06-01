@@ -1,10 +1,9 @@
-// src/pages/auth/ForgotPasswordPage.jsx
-import React from 'react';
-import ForgotPasswordForm from '../../components/auth/ForgotPasswordForm';
+import React from "react";
+import ForgotPasswordForm from "../../components/auth/ForgotPasswordForm";
 
 const ForgotPasswordPage = () => {
   return (
-    <div className="d-flex align-items-center justify-content-center" style={{ minHeight: '100vh', backgroundColor: '#f8f9fa' }}>
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 to-slate-700 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
       <ForgotPasswordForm />
     </div>
   );

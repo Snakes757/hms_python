@@ -1,19 +1,19 @@
-// src/pages/admin/UserDetailsPage.jsx
-import React from 'react';
-import { useParams } from 'react-router-dom';
-import UserDetailsEdit from '../../components/admin/UserDetailsEdit'; // Renamed component
-import Sidebar from '../../components/common/Sidebar';
+import React from "react";
+import { useParams } from "react-router-dom";
+import UserDetailsEdit from "../../components/admin/UserDetailsEdit";
+import PageWithSidebar from "../../routes/PageWithSidebar";
+import ProtectedRoute from "../../components/common/ProtectedRoute";
+import { USER_ROLES } from "../../utils/constants";
 
 const UserDetailsPage = () => {
-  const { userId } = useParams(); // Get userId from URL
+  const { userId } = useParams();
 
   return (
-    <div className="d-flex">
-      <Sidebar />
-      <div className="container-fluid mt-4 flex-grow-1">
+    <ProtectedRoute requiredRole={USER_ROLES.ADMIN}>
+      <PageWithSidebar title={`Manage User Details (ID: ${userId})`}>
         <UserDetailsEdit userIdParam={userId} />
-      </div>
-    </div>
+      </PageWithSidebar>
+    </ProtectedRoute>
   );
 };
 

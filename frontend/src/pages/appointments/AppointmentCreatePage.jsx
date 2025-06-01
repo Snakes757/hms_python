@@ -1,17 +1,22 @@
-// src/pages/appointments/AppointmentCreatePage.jsx
-import React from 'react';
-import AppointmentForm from '../../components/appointments/AppointmentForm';
-import Sidebar from '../../components/common/Sidebar';
+import React from "react";
+import AppointmentForm from "../../components/appointments/AppointmentForm";
+import PageWithSidebar from "../../routes/PageWithSidebar";
+import ProtectedRoute from "../../components/common/ProtectedRoute";
+import { USER_ROLES } from "../../utils/constants"; // Assuming USER_ROLES includes roles that can create appointments
 
 const AppointmentCreatePage = () => {
   return (
-    <div className="d-flex">
-      <Sidebar />
-      <div className="container-fluid mt-4 flex-grow-1">
-        <h1>Schedule New Appointment</h1>
-        <AppointmentForm /> {/* No appointmentId prop means it's for creation */}
-      </div>
-    </div>
+    <ProtectedRoute>
+      <PageWithSidebar title="Schedule New Appointment">
+        <div className="bg-white p-6 rounded-lg shadow-xl">
+          <p className="text-gray-700 mb-6">
+            Please fill in the details below to schedule a new appointment.
+            Ensure all information is accurate.
+          </p>
+          <AppointmentForm />
+        </div>
+      </PageWithSidebar>
+    </ProtectedRoute>
   );
 };
 
