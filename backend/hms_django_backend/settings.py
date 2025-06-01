@@ -1,6 +1,8 @@
 # hms_django_backend/settings.py
 from pathlib import Path
 import os
+import environ
+
 from django.utils.translation import gettext_lazy as _
 # from cryptography.fernet import Fernet # Removed as per user request
 
@@ -90,27 +92,41 @@ TEMPLATES = [
 
 # --- Database ---
 # https://docs.djangoproject.com/en/stable/ref/settings/#databases
-DB_ENGINE = os.environ.get('DB_ENGINE', 'django.db.backends.mysql')
-DB_NAME = os.environ.get('DB_NAME', 'hms_db_dev')
-DB_USER = os.environ.get('DB_USER', 'hms_user_dev')
-DB_PASSWORD = os.environ.get('DB_PASSWORD', 'hms_password_dev')
-DB_HOST = os.environ.get('DB_HOST', 'localhost')
-DB_PORT = os.environ.get('DB_PORT', '3306')
+
+env = environ.Env(
+
+    DB_NAME = (str, 'hms_dev_db'), # Default dev database name
+    DB_ENGINE = ('DB_ENGINE', 'django.db.backends.postgresql'), # Default to MySQL
+    DB_USER = (str, 'DB_USER'),
+    DB_PASSWORD = (str ,'DB_PASSWORD', 'hms_password_dev'),
+    DB_HOST = (str, 'DB_HOST', 'localhost'),
+    DB_PORT = (str, 'DB_PORT', '3306'),
+
+)
+
+
+# DB_ENGINE = os.environ.get('DB_ENGINE', 'django.db.backends.mysql')
+# DB_NAME = os.environ.get('DB_NAME')
+# DB_USER = os.environ.get('DB_USER')
+# DB_PASSWORD = os.environ.get('DB_PASSWORD', 'hms_password_dev')
+# DB_HOST = os.environ.get('DB_HOST', 'localhost')
+# DB_PORT = os.environ.get('DB_PORT', '3306')
 
 DATABASES = {
     'default': {
-        'ENGINE': DB_ENGINE,
-        'NAME': DB_NAME,
-        'USER': DB_USER,
-        'PASSWORD': DB_PASSWORD,
-        'HOST': DB_HOST,
-        'PORT': DB_PORT,
+        'ENGINE': env('DB_ENGINE', default='django.db.backends.mysql'), # Default to MySQL
+        # 'ENGINE': 'django.db.backends.postgresql', # Uncomment for PostgreSQL
+        'NAME': env('DB_NAME', default='hms_dev_db'), # Default dev database name
+        'USER': env('DB_USER', default='hms_user'), # Default dev user
+        'PASSWORD': env('DB_PASSWORD', default='hms_password_dev'), # Default dev password
+        'HOST': env('DB_HOST', default='localhost'), # Default to localhost
+        'PORT': env('DB_PORT', default='3306'), # Default MySQL port
         'OPTIONS': {
             'init_command': "SET sql_mode='STRICT_TRANS_TABLES'",
             'charset': 'utf8mb4',
         },
         'TEST': { # Separate settings for test database if needed
-            'NAME': os.environ.get('TEST_DB_NAME', f'test_{DB_NAME}'),
+            #'NAME': os.environ.get('TEST_DB_NAME', f'test_{DB_NAME}'),
         },
     }
 }
