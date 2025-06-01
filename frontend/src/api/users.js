@@ -1,7 +1,7 @@
 // src/api/users.js
 // API functions for user management (typically admin actions)
 
-const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || '/api/v1';
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '/api/v1';
 
 /**
  * Lists all users in the system. (Admin only)

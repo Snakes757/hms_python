@@ -1,10 +1,12 @@
+// src/pages/Home.jsx
 import React, { useContext } from "react";
 import { Link } from "react-router-dom";
 import { AuthContext } from "../context/AuthContext";
 import { USER_ROLES } from "../utils/constants";
 
 import AdminDashboardPage from "./dashboard/AdminDashboardPage";
-import DoctorDashboardPage from "./dashboard/DoctorDashboardPage";
+// Corrected: Pointing to DoctorDashboard.jsx as per file map
+import DoctorDashboardPage from "./dashboard/DoctorDashboard";
 import NurseDashboardPage from "./dashboard/NurseDashboardPage";
 import ReceptionistDashboardPage from "./dashboard/ReceptionistDashboardPage";
 import PatientDashboardPage from "./dashboard/PatientDashboardPage";
@@ -22,7 +24,7 @@ const HomePage = () => {
             fill="none"
             viewBox="0 0 24 24"
             stroke="currentColor"
-            strokeWidth={2}
+            strokeWidth={1.5}
           >
             <path
               strokeLinecap="round"

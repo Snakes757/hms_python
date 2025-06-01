@@ -1,5 +1,5 @@
 // src/api/reports.js
-const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || '/api/v1';
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '/api/v1';
 
 /**
  * Fetches a list of available reports. (Admin only)

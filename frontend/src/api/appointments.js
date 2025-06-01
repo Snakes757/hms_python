@@ -1,12 +1,6 @@
 // src/api/appointments.js
-const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || '/api/v1';
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '/api/v1';
 
-/**
- * Lists appointments. Filters based on user role are typically handled by the backend.
- * Client can pass query parameters like patient_id, doctor_id, status, date_from, date_to.
- * @param {object} params - Optional query parameters for filtering.
- * @returns {Promise<Array<object>>} A list of appointment objects.
- */
 export const listAppointments = async (params = {}) => {
   const token = localStorage.getItem('authToken');
   if (!token) {

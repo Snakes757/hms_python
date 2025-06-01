@@ -1,9 +1,12 @@
+// src/routes/DoctorRoutes.jsx
 import React from "react";
 import { Routes, Route, Navigate } from "react-router-dom";
 import ProtectedRoute from "../components/common/ProtectedRoute";
 import PageWithSidebar from "./PageWithSidebar";
 
-import DoctorDashboardPage from "../pages/dashboard/DoctorDashboardPage";
+// Corrected: Pointing to DoctorDashboard.jsx as per file map
+// Ensure DoctorDashboard.jsx exports a component, aliased here as DoctorDashboardPage if needed.
+import DoctorDashboardPage from "../pages/dashboard/DoctorDashboard";
 import PatientListPage from "../pages/patients/PatientListPage";
 import PatientProfilePage from "../pages/patients/PatientProfilePage";
 import AppointmentListPage from "../pages/appointments/AppointmentListPage";

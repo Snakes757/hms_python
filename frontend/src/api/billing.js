@@ -1,5 +1,5 @@
 // src/api/billing.js
-const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || '/api/v1';
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '/api/v1';
 
 /**
  * Lists invoices. Filters based on user role are typically handled by the backend.

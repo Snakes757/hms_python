@@ -1,22 +1,20 @@
-// src/pages/inquiries/InquiryDetailsPage.jsx
-import React from 'react';
-import { useParams } from 'react-router-dom';
-import InquiryDetails from '../../components/inquiries/InquiryDetails'; // Component from previous batch
-import Sidebar from '../../components/common/Sidebar';
+import React from "react";
+import { useParams } from "react-router-dom";
+import InquiryDetails from "../../components/inquiries/InquiryDetails";
+import PageWithSidebar from "../../routes/PageWithSidebar";
+import ProtectedRoute from "../../components/common/ProtectedRoute";
 
 const InquiryDetailsPage = () => {
-  const { inquiryId } = useParams(); // Get inquiryId from URL
+  const { inquiryId } = useParams();
 
   return (
-    <div className="d-flex">
-      <Sidebar />
-      <div className="container-fluid mt-4 flex-grow-1">
-        {/* The InquiryDetails component fetches its own data based on the inquiryId.
-          No need to pass inquiryData directly here, just the ID.
-        */}
-        <InquiryDetails inquiryIdParam={inquiryId} /> 
-      </div>
-    </div>
+    <ProtectedRoute>
+      {" "}
+      {}
+      <PageWithSidebar title={`Inquiry Details (ID: ${inquiryId})`}>
+        <InquiryDetails inquiryIdParam={inquiryId} />
+      </PageWithSidebar>
+    </ProtectedRoute>
   );
 };
 

@@ -1,17 +1,18 @@
-// src/pages/reports/StaffActivityReportPage.jsx
-import React from 'react';
-import StaffActivityReport from '../../components/reports/StaffActivityReport';
-import Sidebar from '../../components/common/Sidebar';
+import React from "react";
+import StaffActivityReport from "../../components/reports/StaffActivityReport";
+import PageWithSidebar from "../../routes/PageWithSidebar";
+import RoleBasedRoute from "../../components/common/RoleBasedRoute";
+import { USER_ROLES } from "../../utils/constants";
 
 const StaffActivityReportPage = () => {
   return (
-    <div className="d-flex">
-      <Sidebar />
-      <div className="container-fluid mt-4 flex-grow-1">
-        {/* The StaffActivityReport component contains its own title */}
-        <StaffActivityReport />
-      </div>
-    </div>
+    <RoleBasedRoute allowedRoles={[USER_ROLES.ADMIN]}>
+      <PageWithSidebar title="Staff Activity Report">
+        <div className="bg-white p-6 rounded-lg shadow-xl">
+          <StaffActivityReport />
+        </div>
+      </PageWithSidebar>
+    </RoleBasedRoute>
   );
 };
 

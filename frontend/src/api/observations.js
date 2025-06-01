@@ -1,6 +1,5 @@
 // src/api/observations.js
-const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || '/api/v1';
-
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '/api/v1';
 /**
  * Lists all observations for a specific patient.
  * Accessible by Patient (own), Doctor, Nurse, Admin.

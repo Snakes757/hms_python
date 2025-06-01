@@ -1,11 +1,12 @@
+// src/pages/patients/PatientProfilePage.jsx
 import React, { useState, useContext, useEffect } from "react";
-import { useParams, useLocation } from "react-router-dom";
+import { useParams, useLocation } from "react-router-dom"; // Ensure react-router-dom is installed
 import PatientProfile from "../../components/patients/PatientProfile";
 import PageWithSidebar from "../../routes/PageWithSidebar";
 import ProtectedRoute from "../../components/common/ProtectedRoute";
 import MedicalRecordsList from "../../components/medical/MedicalRecordsList";
-import RecordForm from "../../components/medical/RecordForm";
-import PrescriptionList from "../../components/medical/PrescriptionList";
+import RecordForm from "../../components/medical/RecordForm"; // Assuming this is the general medical record form
+import PrescriptionList from "../../components/medical/PrescriptionsList"; // Corrected: Plural to match map
 import PrescriptionForm from "../../components/medical/PrescriptionForm";
 import TreatmentList from "../../components/medical/TreatmentList";
 import TreatmentForm from "../../components/medical/TreatmentForm";
@@ -13,11 +14,11 @@ import ObservationList from "../../components/medical/ObservationList";
 import ObservationForm from "../../components/medical/ObservationForm";
 import { AuthContext } from "../../context/AuthContext";
 import usePermissions from "../../hooks/usePermissions";
-import { patientsApi } from "../../api";
+import { patientsApi } from "../../api"; // Assuming you have this
 import LoadingSpinner from "../../components/common/LoadingSpinner";
 
 const PatientProfilePage = () => {
-  const { userId } = useParams();
+  const { userId } = useParams(); // This is the user_id of the patient
   const { user: currentUser } = useContext(AuthContext);
   const { can, isRole } = usePermissions();
   const location = useLocation();
@@ -26,6 +27,7 @@ const PatientProfilePage = () => {
   const [loadingPatient, setLoadingPatient] = useState(true);
   const [patientError, setPatientError] = useState("");
 
+  // Determine the active tab from URL state or default to 'profile'
   const [activeTab, setActiveTab] = useState(
     location.state?.defaultTab || "profile"
   );
@@ -35,7 +37,7 @@ const PatientProfilePage = () => {
     treatment: false,
     observation: false,
   });
-  const [editingItem, setEditingItem] = useState(null);
+  const [editingItem, setEditingItem] = useState(null); // To store item being edited
 
   useEffect(() => {
     const fetchPatient = async () => {
@@ -61,15 +63,17 @@ const PatientProfilePage = () => {
   const handleEditClick = (type, item = null) => {
     setEditingItem(item);
     setShowForm((prev) => ({
-      ...Object.fromEntries(Object.keys(prev).map((k) => [k, false])),
-      [type]: true,
+      ...Object.fromEntries(Object.keys(prev).map((k) => [k, false])), // Close other forms
+      [type]: true, // Open the specific form
     }));
   };
 
   const handleFormSuccessOrCancel = (type) => {
     setShowForm((prev) => ({ ...prev, [type]: false }));
     setEditingItem(null);
-    // Optionally, trigger a refresh of the relevant list if needed
+    // Potentially re-fetch data for the list if an item was added/updated
+    // For simplicity, this example doesn't auto-refresh lists here.
+    // Consider passing a refresh function to forms or using a state management solution.
   };
 
   const pageTitle = patientData
@@ -98,7 +102,8 @@ const PatientProfilePage = () => {
     );
   }
 
-  const canManageMedicalRecords = can("MANAGE_MEDICAL_RECORD");
+  // Permissions checks
+  const canManageMedicalRecords = can("MANAGE_MEDICAL_RECORD"); // Example permission
   const canManagePrescriptions = can("MANAGE_PRESCRIPTION");
   const canManageTreatments = can("MANAGE_TREATMENT");
   const canManageObservations = can("MANAGE_OBSERVATION");
@@ -115,6 +120,7 @@ const PatientProfilePage = () => {
     <ProtectedRoute>
       <PageWithSidebar title={pageTitle}>
         <div className="bg-white p-6 rounded-lg shadow-xl space-y-8">
+          {/* Tabs Navigation */}
           <div className="border-b border-gray-200">
             <nav className="-mb-px flex space-x-6" aria-label="Tabs">
               {tabs.map((tab) => (
@@ -133,10 +139,11 @@ const PatientProfilePage = () => {
             </nav>
           </div>
 
+          {/* Tab Content */}
           {activeTab === "profile" && (
             <PatientProfile
               patientUserId={userId}
-              existingPatientDataFromPage={patientData}
+              existingPatientDataFromPage={patientData} // Pass fetched data to avoid re-fetch
             />
           )}
 
@@ -195,7 +202,7 @@ const PatientProfilePage = () => {
               {showForm.prescription ? (
                 <PrescriptionForm
                   patientUserId={userId}
-                  prescriptionId={editingItem?.id}
+                  prescriptionId={editingItem?.id} // Pass ID if editing
                   onFormSubmit={() => handleFormSuccessOrCancel("prescription")}
                   onCancel={() => handleFormSuccessOrCancel("prescription")}
                 />
