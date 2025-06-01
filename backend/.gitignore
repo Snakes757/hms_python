@@ -73,6 +73,8 @@ Visual Studio Code
 *.code-workspace
 
 Sublime Text
+
+migrations
 *.sublime-workspace
 *.sublime-project
 

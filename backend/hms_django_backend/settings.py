@@ -38,7 +38,6 @@ if DEBUG and '*' not in ALLOWED_HOSTS:
 
 # --- Application Definition ---
 INSTALLED_APPS = [
-    # HMS Core Apps
     'users.apps.UsersConfig',
     'patients.apps.PatientsConfig',
     'appointments.apps.AppointmentsConfig',
@@ -49,7 +48,6 @@ INSTALLED_APPS = [
     'inquiries.apps.InquiriesConfig',
     'audit_log.apps.AuditLogConfig',
 
-    # Django Contrib Apps
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -57,7 +55,6 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
 
-    # Third-Party Apps
     'rest_framework',
     'rest_framework.authtoken',
     'drf_yasg',
