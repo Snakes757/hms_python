@@ -1,95 +1,108 @@
-// src/components/dashboard/PatientDashboard.jsx
-import React, { useContext } from 'react';
-import { Link } from 'react-router-dom';
-import { AuthContext } from '../../context/AuthContext';
+import React from "react";
+import { Routes, Route, Navigate } from "react-router-dom";
+import ProtectedRoute from "../components/common/ProtectedRoute";
+import PageWithSidebar from "./PageWithSidebar"; // Assuming this layout component exists and provides a sidebar
 
-const PatientDashboard = () => {
-  const { user } = useContext(AuthContext);
+import AdminDashboardPage from "../pages/dashboard/AdminDashboardPage"; // Ensure this is the page component
+import UserListPage from "../pages/admin/UserListPage";
+import UserCreatePage from "../pages/admin/UserCreatePage"; // For creating new users
+import UserDetailsPage from "../pages/admin/UserDetailsPage";
+import ReportsDashboardPage from "../pages/reports/ReportsDashboardPage";
+import PatientStatisticsPage from "../pages/reports/PatientStatisticsPage"; // Updated to import the page
+import AppointmentReportPage from "../pages/reports/AppointmentReportPage";
+import FinancialReportPage from "../pages/reports/FinancialReportPage";
+import StaffActivityReportPage from "../pages/reports/StaffActivityReportPage";
 
-  if (!user || user.role !== 'PATIENT') {
-    return <p className="text-danger">Access Denied. Patient role required.</p>;
-  }
+import { USER_ROLES } from "../utils/constants";
 
-  // Placeholder data - In a real app, this would come from API calls
-  const upcomingAppointmentsCount = 0; // Example: fetch upcoming appointments
-  const unreadMessagesCount = 0;       // Example: fetch unread messages
-
+/**
+ * @file AdminRoutes.jsx
+ * @description Defines routes accessible only to users with the ADMIN role.
+ * All routes are wrapped with ProtectedRoute to ensure role-based access.
+ * Uses PageWithSidebar for consistent layout.
+ */
+const AdminRoutes = () => {
   return (
-    <div className="container mt-4">
-      <h2>Patient Dashboard</h2>
-      <p className="lead">Welcome, {user.first_name} {user.last_name}!</p>
-      <hr />
+    <Routes>
+      <Route
+        path="dashboard"
+        element={
+          <ProtectedRoute requiredRole={USER_ROLES.ADMIN}>
+            <AdminDashboardPage />
+          </ProtectedRoute>
+        }
+      />
 
-      <div className="row g-3">
-        {/* Key Information Summary */}
-        <div className="col-md-6 col-lg-4 mb-3">
-          <div className="card text-white bg-primary shadow-sm h-100">
-            <div className="card-body">
-              <h5 className="card-title">Upcoming Appointments</h5>
-              {upcomingAppointmentsCount > 0 ? (
-                <p className="card-text fs-4">{upcomingAppointmentsCount}</p>
-              ) : (
-                <p className="card-text">No upcoming appointments.</p>
-              )}
-              <Link to="/appointments" className="btn btn-light btn-sm">View Appointments</Link>
-            </div>
-          </div>
-        </div>
+      <Route
+        path="users"
+        element={
+          <ProtectedRoute requiredRole={USER_ROLES.ADMIN}>
+            <UserListPage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="users/new"
+        element={
+          <ProtectedRoute requiredRole={USER_ROLES.ADMIN}>
+            <UserCreatePage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="users/:userId"
+        element={
+          <ProtectedRoute requiredRole={USER_ROLES.ADMIN}>
+            <UserDetailsPage />
+          </ProtectedRoute>
+        }
+      />
 
-        <div className="col-md-6 col-lg-4 mb-3">
-          <div className="card text-white bg-info shadow-sm h-100">
-            <div className="card-body">
-              <h5 className="card-title">My Medical Records</h5>
-              <p className="card-text">Access your health history, test results, and more.</p>
-              <Link to={`/patients/${user.id}`} className="btn btn-light btn-sm">View My Records</Link> 
-              {/* Assuming /patients/:userId shows profile with medical records */}
-            </div>
-          </div>
-        </div>
-        
-        <div className="col-md-6 col-lg-4 mb-3">
-          <div className="card text-dark bg-light shadow-sm h-100">
-            <div className="card-body">
-              <h5 className="card-title">My Profile</h5>
-              <p className="card-text">View and update your personal information.</p>
-              <Link to="/profile/me" className="btn btn-secondary btn-sm">View/Edit Profile</Link>
-            </div>
-          </div>
-        </div>
+      <Route
+        path="reports"
+        element={
+          <ProtectedRoute requiredRole={USER_ROLES.ADMIN}>
+            <ReportsDashboardPage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="reports/patient-statistics"
+        element={
+          <ProtectedRoute requiredRole={USER_ROLES.ADMIN}>
+            <PatientStatisticsPage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="reports/appointment-report"
+        element={
+          <ProtectedRoute requiredRole={USER_ROLES.ADMIN}>
+            <AppointmentReportPage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="reports/financial-report"
+        element={
+          <ProtectedRoute requiredRole={USER_ROLES.ADMIN}>
+            <FinancialReportPage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="reports/staff-activity"
+        element={
+          <ProtectedRoute requiredRole={USER_ROLES.ADMIN}>
+            <StaffActivityReportPage />
+          </ProtectedRoute>
+        }
+      />
 
-        {/* Quick Actions */}
-        <div className="col-lg-12">
-           <div className="card shadow-sm">
-            <div className="card-header">
-                Quick Actions
-            </div>
-            <div className="card-body">
-                 <Link to="/appointments/new" className="btn btn-success me-2 mb-2">Schedule New Appointment</Link>
-                 <Link to="/telemedicine/sessions/new" className="btn btn-info me-2 mb-2">Book Telemedicine Session</Link>
-                 <Link to="/inquiries/new" className="btn btn-warning me-2 mb-2">Submit an Inquiry</Link>
-                 <Link to="/billing/invoices" className="btn btn-outline-primary mb-2">View My Invoices</Link>
-            </div>
-           </div>
-        </div>
-
-
-        {/* Placeholder for Unread Messages or Notifications */}
-        {/* <div className="col-md-12 mt-3">
-          <div className="card shadow-sm">
-            <div className="card-body">
-              <h5 className="card-title">Notifications</h5>
-              {unreadMessagesCount > 0 ? (
-                <p>You have {unreadMessagesCount} unread messages.</p>
-              ) : (
-                <p className="text-muted">No new notifications.</p>
-              )}
-              <Link to="/messages" className="btn btn-outline-primary btn-sm">View Messages</Link>
-            </div>
-          </div>
-        </div> */}
-      </div>
-    </div>
+      {/* Fallback for any other admin path, redirect to admin dashboard */}
+      <Route path="*" element={<Navigate to="dashboard" replace />} />
+    </Routes>
   );
 };
 
-export default PatientDashboard;
+export default AdminRoutes;
