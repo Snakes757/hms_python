@@ -1,3 +1,9 @@
+/* src/index.css */
+/* This is the default CSS file created by Create React App. */
+/* You can add global styles here, but it's often better to use a dedicated global.css 
+   or rely on Bootstrap and component-specific styles.
+*/
+
 body {
   margin: 0;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
@@ -5,9 +11,24 @@ body {
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  background-color: #f8f9fa; /* Consistent light background from Bootstrap's .bg-light */
 }
 
 code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
 }
+
+/* Consider moving more extensive global styles to src/styles/global.css 
+  and importing it in src/index.js or src/App.js for better organization.
+  Bootstrap should handle most base styling and resets.
+*/
+
+/* Example of a very basic reset (Bootstrap already includes a more comprehensive one - Normalize.css) */
+/*
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+*/

@@ -1,0 +1,61 @@
+/* src/styles/components/tables.css */
+/* Custom table styles to supplement or override Bootstrap */
+
+/* Example: Zebra-striping for table body rows if not using .table-striped */
+/*
+.table-custom-striped tbody tr:nth-of-type(odd) {
+  background-color: rgba(0, 0, 0, 0.03);
+}
+*/
+
+/* Example: Hover effect for table rows if not using .table-hover */
+/*
+.table-custom-hover tbody tr:hover {
+  background-color: rgba(0, 0, 0, 0.06);
+}
+*/
+
+/* Custom table header styling */
+/*
+.table thead th.custom-header {
+  background-color: #343a40; // Bootstrap dark color
+  color: #ffffff;
+  border-color: #454d55;
+  vertical-align: middle;
+}
+*/
+
+/* Align text in table cells */
+.table .text-align-right {
+  text-align: right;
+}
+.table .text-align-center {
+  text-align: center;
+}
+.table .text-align-left {
+  text-align: left;
+}
+
+/* Vertical alignment */
+.table .align-middle {
+    vertical-align: middle !important; /* Ensure it overrides Bootstrap if needed */
+}
+
+/* Smaller padding for dense tables */
+.table-sm-custom td,
+.table-sm-custom th {
+  padding: 0.4rem;
+}
+
+/* Table actions column - to keep buttons neatly aligned */
+.table-actions {
+  white-space: nowrap; /* Prevent buttons from wrapping */
+  width: 1%; /* Try to make it as small as possible */
+}
+
+.table-actions .btn {
+  margin-right: 0.25rem; /* Add some space between buttons */
+}
+.table-actions .btn:last-child {
+  margin-right: 0;
+}

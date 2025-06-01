@@ -1,0 +1,53 @@
+/* src/styles/components/forms.css */
+/* This file can be imported where forms are used, or globally. */
+/* Keep this minimal as Bootstrap handles most form styling. */
+
+/* Example: Slightly larger input fields if desired */
+/*
+.form-control-lg-custom {
+  padding: .6rem 1rem;
+  font-size: 1.1rem;
+  border-radius: .3rem;
+}
+*/
+
+/* Custom styling for required field indicators, if not using Bootstrap's built-in */
+/*
+label .text-danger {
+  font-weight: bold;
+  margin-left: 0.25rem;
+}
+*/
+
+/* Styling for form validation feedback (Bootstrap has its own, this is for overrides) */
+/*
+.invalid-feedback-custom {
+  display: block;
+  width: 100%;
+  margin-top: .25rem;
+  font-size: .875em;
+  color: #dc3545; // Bootstrap danger color
+}
+
+.valid-feedback-custom {
+  display: block;
+  width: 100%;
+  margin-top: .25rem;
+  font-size: .875em;
+  color: #198754; // Bootstrap success color
+}
+*/
+
+/* Consistent spacing for form groups */
+.form-group-spaced {
+  margin-bottom: 1.5rem;
+}
+
+/* Style for fieldset legends if used */
+fieldset legend {
+    font-size: 1.1rem;
+    font-weight: 600;
+    padding-bottom: 0.5rem;
+    margin-bottom: 1rem;
+    border-bottom: 1px solid #dee2e6;
+}

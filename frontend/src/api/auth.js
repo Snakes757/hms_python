@@ -1,11 +1,9 @@
 // src/api/auth.js
-const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || '/api/v1'; // Ensure this is configured in your .env
+const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || '/api/v1';
 
 /**
  * Registers a new user.
  * @param {object} userData - The user data for registration.
- * Expected fields: username, email, password, password_confirm, first_name, last_name, role.
- * Role-specific fields like specialization (for Doctor), department (for Nurse) might be needed.
  * @returns {Promise<object>} The response data from the API.
  */
 export const registerUser = async (userData) => {
@@ -19,7 +17,7 @@ export const registerUser = async (userData) => {
     });
     if (!response.ok) {
       const errorData = await response.json();
-      throw new Error(errorData.detail || `HTTP error! status: ${response.status}`);
+      throw new Error(errorData.detail || JSON.stringify(errorData) || `HTTP error! status: ${response.status}`);
     }
     return await response.json();
   } catch (error) {
@@ -31,7 +29,6 @@ export const registerUser = async (userData) => {
 /**
  * Logs in a user.
  * @param {object} credentials - The user's login credentials.
- * Expected fields: email, password.
  * @returns {Promise<object>} The response data from the API, including user details and token.
  */
 export const loginUser = async (credentials) => {
@@ -45,13 +42,12 @@ export const loginUser = async (credentials) => {
     });
     if (!response.ok) {
       const errorData = await response.json();
-      throw new Error(errorData.detail || `HTTP error! status: ${response.status}`);
+      throw new Error(errorData.detail || JSON.stringify(errorData) || `HTTP error! status: ${response.status}`);
     }
     const data = await response.json();
-    // Store the token (e.g., in localStorage or context)
     if (data.token) {
       localStorage.setItem('authToken', data.token);
-      localStorage.setItem('userData', JSON.stringify(data.user)); // Store user data
+      localStorage.setItem('userData', JSON.stringify(data.user));
     }
     return data;
   } catch (error) {
@@ -62,14 +58,15 @@ export const loginUser = async (credentials) => {
 
 /**
  * Logs out the currently authenticated user.
- * Requires the auth token to be sent in the headers.
  * @returns {Promise<object>} The response data from the API.
  */
 export const logoutUser = async () => {
   const token = localStorage.getItem('authToken');
+  // Always clear client-side storage regardless of server response
+  localStorage.removeItem('authToken');
+  localStorage.removeItem('userData');
+
   if (!token) {
-    // No token, user is not logged in or token is already cleared.
-    localStorage.removeItem('userData'); // Clear user data as well
     return Promise.resolve({ message: "Already logged out or no token found." });
   }
 
@@ -81,23 +78,17 @@ export const logoutUser = async () => {
         'Authorization': `Token ${token}`,
       },
     });
-    // Logout should succeed even if the token is invalid on the server,
-    // as the goal is to clear client-side session.
-    // However, we check response.ok for server confirmation.
     if (!response.ok) {
-        // If server returns an error (e.g. 401 if token was already invalid),
-        // still proceed to clear client-side token.
-        console.warn(`Logout failed on server: ${response.status}. Proceeding with client-side logout.`);
+      console.warn(`Logout request to server failed: ${response.status}. Client-side logout still performed.`);
+      // Depending on backend, it might return error if token is already invalid.
+      // We don't throw an error here as client-side logout is the main goal.
     }
-    localStorage.removeItem('authToken');
-    localStorage.removeItem('userData');
-    return { message: "Logout successful." }; // Assuming backend might not return JSON on successful logout
+    return { message: "Logout successful." };
   } catch (error) {
-    console.error('Logout failed:', error);
-    // Still clear client-side token in case of network error
-    localStorage.removeItem('authToken');
-    localStorage.removeItem('userData');
-    throw error;
+    console.error('Logout API call failed:', error);
+    // Client-side logout already performed.
+    // Optionally re-throw if you want to handle network errors specifically.
+    return { message: "Logout completed locally, server call failed." };
   }
 };
 
@@ -112,7 +103,7 @@ export const getUserProfile = async () => {
   }
 
   try {
-    const response = await fetch(`${API_BASE_URL}/users/profile/`, { // Backend uses /profile/ for current user
+    const response = await fetch(`${API_BASE_URL}/users/profile/`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
@@ -121,7 +112,7 @@ export const getUserProfile = async () => {
     });
     if (!response.ok) {
       const errorData = await response.json();
-      throw new Error(errorData.detail || `HTTP error! status: ${response.status}`);
+      throw new Error(errorData.detail || JSON.stringify(errorData) || `HTTP error! status: ${response.status}`);
     }
     return await response.json();
   } catch (error) {
@@ -142,8 +133,8 @@ export const updateUserProfile = async (profileData) => {
   }
 
   try {
-    const response = await fetch(`${API_BASE_URL}/users/profile/`, { // Backend uses /profile/ for current user
-      method: 'PUT', // Or PATCH if partial updates are allowed and preferred
+    const response = await fetch(`${API_BASE_URL}/users/profile/`, {
+      method: 'PUT', 
       headers: {
         'Content-Type': 'application/json',
         'Authorization': `Token ${token}`,
@@ -152,11 +143,106 @@ export const updateUserProfile = async (profileData) => {
     });
     if (!response.ok) {
       const errorData = await response.json();
-      throw new Error(errorData.detail || `HTTP error! status: ${response.status}`);
+      throw new Error(errorData.detail || JSON.stringify(errorData) || `HTTP error! status: ${response.status}`);
     }
-    return await response.json();
+    const updatedUser = await response.json();
+    localStorage.setItem('userData', JSON.stringify(updatedUser)); // Update stored user data
+    return updatedUser;
   } catch (error) {
     console.error('Failed to update user profile:', error);
     throw error;
   }
+};
+
+/**
+ * Sends a password reset request.
+ * IMPORTANT: Backend endpoint /api/v1/users/password-reset/ is assumed.
+ * @param {string} email - The user's email address.
+ * @returns {Promise<object>} Success message from the API.
+ */
+export const requestPasswordReset = async (email) => {
+  // const API_ENDPOINT = `${API_BASE_URL}/users/password-reset/`; // Example endpoint
+  // console.warn(`requestPasswordReset: API endpoint for this is not defined in backend docs. Using placeholder for ${API_ENDPOINT}`);
+  
+  // Placeholder implementation:
+  return new Promise((resolve, reject) => {
+    setTimeout(() => {
+      if (email === "test@example.com" || email.includes('@')) { // Simulate success for any valid-looking email
+        console.log(`Simulating password reset request for ${email}`);
+        resolve({ message: "If an account with this email exists, a password reset link has been sent." });
+      } else {
+        reject(new Error("Invalid email format for password reset simulation."));
+      }
+    }, 1000);
+  });
+
+  /*
+  // Actual implementation would look like this:
+  try {
+    const response = await fetch(API_ENDPOINT, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ email }),
+    });
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.detail || JSON.stringify(errorData) || `HTTP error! status: ${response.status}`);
+    }
+    return await response.json();
+  } catch (error) {
+    console.error('Password reset request failed:', error);
+    throw error;
+  }
+  */
+};
+
+/**
+ * Confirms password reset with a new password and token.
+ * IMPORTANT: Backend endpoint /api/v1/users/password-reset/confirm/ is assumed.
+ * @param {string} uid - User ID from the reset link.
+ * @param {string} token - Token from the reset link.
+ * @param {string} new_password1 - The new password.
+ * @param {string} new_password2 - Confirmation of the new password.
+ * @returns {Promise<object>} Success message from the API.
+ */
+export const confirmPasswordReset = async (uid, token, new_password1, new_password2) => {
+  // const API_ENDPOINT = `${API_BASE_URL}/users/password-reset/confirm/`; // Example endpoint
+  // console.warn(`confirmPasswordReset: API endpoint for this is not defined in backend docs. Using placeholder for ${API_ENDPOINT}`);
+
+  // Placeholder implementation:
+  return new Promise((resolve, reject) => {
+    setTimeout(() => {
+      if (new_password1 === new_password2 && new_password1.length >= 10 && token && uid) {
+        console.log(`Simulating password reset confirmation for uid: ${uid}`);
+        resolve({ message: "Password has been reset successfully. You can now log in with your new password." });
+      } else if (new_password1 !== new_password2) {
+        reject(new Error("Passwords do not match."));  
+      } else {
+        reject(new Error("Password reset confirmation failed (simulated). Ensure token, uid, and valid passwords."));
+      }
+    }, 1000);
+  });
+  
+  /*
+  // Actual implementation:
+  try {
+    const response = await fetch(API_ENDPOINT, { // This endpoint might need uid and token in URL or body
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ uid, token, new_password1, new_password2 }),
+    });
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.detail || JSON.stringify(errorData) || `HTTP error! status: ${response.status}`);
+    }
+    return await response.json();
+  } catch (error) {
+    console.error('Password reset confirmation failed:', error);
+    throw error;
+  }
+  */
 };

@@ -1,0 +1,60 @@
+/* src/styles/components/cards.css */
+/* Custom card styles to supplement or override Bootstrap */
+
+/* Example: Card with a colored top border */
+/*
+.card-bordered-top-primary {
+  border-top: 3px solid #007bff; // Bootstrap primary color
+}
+.card-bordered-top-success {
+  border-top: 3px solid #198754; // Bootstrap success color
+}
+.card-bordered-top-warning {
+  border-top: 3px solid #ffc107; // Bootstrap warning color
+}
+.card-bordered-top-danger {
+  border-top: 3px solid #dc3545; // Bootstrap danger color
+}
+*/
+
+/* Example: Card with a slightly more pronounced shadow */
+/*
+.card-shadow-lg-custom {
+  box-shadow: 0 1rem 3rem rgba(0, 0, 0, 0.175) !important; // Bootstrap's shadow-lg
+}
+*/
+
+/* Custom card header styling */
+/*
+.card-header-custom {
+  background-color: #e9ecef; // A light grey
+  color: #495057; // Darker text for contrast
+  font-weight: 600;
+  padding: 0.75rem 1.25rem;
+  border-bottom: 1px solid rgba(0,0,0,.125);
+}
+*/
+
+/* Card for dashboard widgets - ensure consistent height if needed */
+.dashboard-widget-card {
+  min-height: 200px; /* Example: Enforce a minimum height */
+   display: flex; 
+  flex-direction: column;
+}
+
+.dashboard-widget-card .card-body {
+  flex-grow: 1; /* Allows card body to expand */
+}
+
+/* Styling for lists within cards to remove default list-group borders if card has its own */
+.card .list-group-flush .list-group-item {
+    border-right: 0;
+    border-left: 0;
+    border-radius: 0;
+}
+.card .list-group-flush:first-child .list-group-item:first-child {
+    border-top: 0;
+}
+.card .list-group-flush:last-child .list-group-item:last-child {
+    border-bottom: 0;
+}

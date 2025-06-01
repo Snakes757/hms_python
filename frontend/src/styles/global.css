@@ -1,0 +1,77 @@
+/* src/styles/global.css */
+/* This file can be imported into src/index.js or src/App.js */
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  line-height: 1.6;
+  color: #333;
+  background-color: #f4f7f6; /* A very light off-white/grey for the page background */
+}
+
+a {
+  color: #007bff; /* Bootstrap primary blue */
+  text-decoration: none;
+}
+
+a:hover {
+  color: #0056b3;
+  text-decoration: underline;
+}
+
+/* Utility class for slightly bolder text if needed beyond Bootstrap's fw-bold */
+.fw-semibold {
+    font-weight: 600 !important;
+}
+
+/* Sidebar specific styles could also go here or in Sidebar.css */
+#sidebarMenu {
+  /* min-height: calc(100vh - 56px); /* Adjust 56px if navbar height changes */
+  /* box-shadow: inset -1px 0 0 rgba(0, 0, 0, .1); */
+}
+
+.sidebar .nav-link {
+  font-weight: 500;
+  color: #333;
+}
+
+.sidebar .nav-link:hover,
+.sidebar .nav-link.active {
+  color: #007bff;
+  background-color: #e9ecef; /* Light background for active/hover sidebar links */
+}
+
+.sidebar-heading {
+  font-size: .75rem;
+}
+
+/* Card styling consistency */
+.card {
+    border: 1px solid #e0e0e0; /* Softer border for cards */
+}
+
+.card-header {
+    /* background-color: #f8f9fa; /* Lighter card header */
+    /* border-bottom: 1px solid #e0e0e0; */
+}
+
+/* Improve focus states for accessibility */
+a:focus, button:focus, input:focus, select:focus, textarea:focus {
+  outline: 2px solid #0d6efd !important; /* Bootstrap primary color outline */
+  outline-offset: 1px;
+  box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25) !important; /* Bootstrap focus shadow */
+}
+
+/* Ensure content in main area doesn't get hidden by fixed sidebar/header */
+/* This might be handled by flexbox in App.js layout already */
+/* .main-content {
+  padding-left: 240px; /* If sidebar width is fixed 
+  padding-top: 60px;  /* If header height is fixed 
+} */
+
+/* Responsive table text */
+.table td, .table th {
+    /* white-space: nowrap; /* Prevent text wrapping in table cells - use with caution */
+    /* overflow: hidden; */
+    /* text-overflow: ellipsis; /* Add ellipsis for overflowed text - use with caution */
+}
+
