@@ -1,53 +1,63 @@
-// src/components/common/Footer.jsx
 import React from 'react';
+import { Link } from 'react-router-dom'; // Assuming Link is used for navigation
 
 const Footer = () => {
   const currentYear = new Date().getFullYear();
   return (
-    <footer className="bg-light text-center text-lg-start mt-auto border-top">
-      <div className="container p-3">
-        <div className="row">
-          <div className="col-lg-6 col-md-12 mb-4 mb-md-0">
-            <h5 className="text-uppercase">Hospital Management System</h5>
-            <p>
+    <footer className="bg-slate-100 text-slate-700 text-center lg:text-left mt-auto border-t border-slate-300">
+      {/* Main container for footer content */}
+      <div className="container mx-auto p-6">
+        {/* Grid layout for footer sections */}
+        <div className="grid lg:grid-cols-3 gap-8">
+          {/* Hospital Management System section */}
+          <div className="lg:col-span-1 mb-6 md:mb-0">
+            <h5 className="uppercase font-semibold mb-2.5 text-slate-800">Hospital Management System</h5>
+            <p className="text-sm text-slate-600">
               Providing quality healthcare services with dedication and advanced technology.
               Your health is our priority.
             </p>
           </div>
-          <div className="col-lg-3 col-md-6 mb-4 mb-md-0">
-            <h5 className="text-uppercase">Quick Links</h5>
-            <ul className="list-unstyled mb-0">
-              <li>
-                <a href="/home" className="text-dark text-decoration-none">Home</a>
+
+          {/* Quick Links section */}
+          <div className="lg:col-span-1 mb-6 md:mb-0">
+            <h5 className="uppercase font-semibold mb-2.5 text-slate-800">Quick Links</h5>
+            <ul className="list-none mb-0">
+              <li className="mb-1">
+                <Link to="/" className="text-slate-600 hover:text-sky-600 transition-colors duration-200">Home</Link>
+              </li>
+              <li className="mb-1">
+                <Link to="/appointments" className="text-slate-600 hover:text-sky-600 transition-colors duration-200">Appointments</Link>
               </li>
               <li>
-                <a href="/appointments" className="text-dark text-decoration-none">Appointments</a>
+                <Link to="/contact-us" className="text-slate-600 hover:text-sky-600 transition-colors duration-200">Contact Us</Link>
               </li>
-              <li>
-                <a href="/contact-us" className="text-dark text-decoration-none">Contact Us</a>
-              </li>
-              {/* Add more relevant links */}
+              {/* Add other relevant quick links here if needed */}
             </ul>
           </div>
-          <div className="col-lg-3 col-md-6 mb-4 mb-md-0">
-            <h5 className="text-uppercase">Contact</h5>
-            <ul className="list-unstyled mb-0">
-              <li>
-                <p className="text-dark mb-1">123 Health St, Wellness City, HC 45678</p>
+
+          {/* Contact section */}
+          <div className="lg:col-span-1 mb-6 md:mb-0">
+            <h5 className="uppercase font-semibold mb-2.5 text-slate-800">Contact</h5>
+            <ul className="list-none mb-0 text-sm">
+              <li className="mb-1">
+                <p className="text-slate-600">123 Health St, Wellness City, HC 45678</p>
+              </li>
+              <li className="mb-1">
+                <a href="mailto:info@hms-example.com" className="text-slate-600 hover:text-sky-600 transition-colors duration-200">info@hms-example.com</a>
               </li>
               <li>
-                <p className="text-dark mb-1">info@hms-example.com</p>
-              </li>
-              <li>
-                <p className="text-dark mb-1">+01 234 567 89</p>
+                <a href="tel:+27762360798" className="text-slate-600 hover:text-sky-600 transition-colors duration-200">+01 234 567 89</a>
               </li>
             </ul>
           </div>
         </div>
       </div>
-      <div className="text-center p-3" style={{ backgroundColor: 'rgba(0, 0, 0, 0.05)' }}>
+
+      {/* Copyright section */}
+      <div className="text-center p-4 text-sm bg-slate-200 text-slate-600">
         © {currentYear} Hospital Management System. All Rights Reserved.
-        {/* <a className="text-dark" href="https://yourdomain.com/">HMS.com</a> */}
+        {/* Optional: Add a link to privacy policy or terms of service if needed */}
+        {/* <a href="/privacy" className="text-slate-600 hover:text-sky-600 ml-4">Privacy Policy</a> */}
       </div>
     </footer>
   );

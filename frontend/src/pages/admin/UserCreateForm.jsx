@@ -1,9 +1,9 @@
 import React, { useState, useContext } from "react";
-import { authApi } from "../../api"; // Corrected: Using authApi for registerUser
+import { authApi } from "../../api"; // Assuming authApi is correctly exported from your api/index.js or api/auth.js
 import { AuthContext } from "../../context/AuthContext";
 import { useNavigate } from "react-router-dom";
 import LoadingSpinner from "../../components/common/LoadingSpinner";
-import { USER_ROLES as ROLE_CONSTANTS } from "../../utils/constants"; // Renamed for clarity
+import { USER_ROLES as ROLE_CONSTANTS } from "../../utils/constants";
 
 const UserCreateForm = () => {
   const { user: currentUser } = useContext(AuthContext);
@@ -12,17 +12,11 @@ const UserCreateForm = () => {
     username: "",
     email: "",
     password: "",
-    password_confirm: "",
+    password_confirm: "", // Added for confirmation
     first_name: "",
     last_name: "",
     role: ROLE_CONSTANTS.PATIENT,
-    is_active: true,
-    // Admin-specific flags (is_staff, is_superuser) are typically handled by a different endpoint
-    // or require higher privileges than standard registration.
-    // For now, we'll omit them from the direct payload to registerUser.
-    // They can be updated later via updateUserById by an admin if necessary.
-
-    // Profile-specific fields (conditional based on role)
+    is_active: true, // Default to active
     doctor_profile: { specialization: "", license_number: "" },
     nurse_profile: { department: "" },
   };
@@ -78,33 +72,36 @@ const UserCreateForm = () => {
 
     setIsLoading(true);
 
+    // Construct the payload to be sent to the API
     const registrationPayload = {
       email: formData.email,
       username: formData.username,
       password: formData.password,
+      password_confirm: formData.password_confirm, // Include password_confirm
       first_name: formData.first_name,
       last_name: formData.last_name,
       role: formData.role,
-      // is_active will be true by default on backend for new registrations
+      is_active: formData.is_active, // Include is_active status
     };
 
+    // Add role-specific profiles if applicable
     if (formData.role === ROLE_CONSTANTS.DOCTOR) {
       registrationPayload.doctor_profile = formData.doctor_profile;
     }
     if (formData.role === ROLE_CONSTANTS.NURSE) {
       registrationPayload.nurse_profile = formData.nurse_profile;
     }
-    // Patient profile fields (like DOB, gender) are not part of the initial user registration via this endpoint.
-    // They are typically added/updated via the PatientProfile model after the CustomUser is created.
 
     try {
-      await authApi.registerUser(registrationPayload); // Using the correct API for registration
+      // Call the API to register the user
+      await authApi.registerUser(registrationPayload);
       setSuccess(
         `User ${registrationPayload.username} created successfully. They can now log in. Profile-specific details (like specialization for doctors) have been submitted.`
       );
-      setFormData(initialFormData);
-      setTimeout(() => navigate("/admin/users"), 3000);
+      setFormData(initialFormData); // Reset form
+      setTimeout(() => navigate("/admin/users"), 3000); // Redirect after a delay
     } catch (err) {
+      // Parse and display detailed error messages if available
       let detailedError =
         err.message || "User creation failed. Please try again.";
       if (
@@ -112,16 +109,10 @@ const UserCreateForm = () => {
         (err.message.includes("{") || err.message.includes("["))
       ) {
         try {
-          const errorObj = JSON.parse(
-            err.message.substring(
-              err.message.indexOf("{"),
-              err.message.lastIndexOf("}") + 1
-            ) ||
-              err.message.substring(
-                err.message.indexOf("["),
-                err.message.lastIndexOf("]") + 1
-              )
-          );
+          // Attempt to parse JSON-like error string
+          const errorString = err.message.substring(err.message.indexOf("{"), err.message.lastIndexOf("}") + 1) ||
+                              err.message.substring(err.message.indexOf("["), err.message.lastIndexOf("]") + 1);
+          const errorObj = JSON.parse(errorString);
           const messages = Object.entries(errorObj)
             .map(
               ([field, msgs]) =>
@@ -132,11 +123,12 @@ const UserCreateForm = () => {
             .join("; ");
           if (messages) detailedError = messages;
         } catch (_parseError) {
-          /* Ignore if parsing fails, use original message */
+          // Parsing failed, use the original message
+          console.warn("Could not parse detailed error message from API:", _parseError);
         }
       }
       setError(detailedError);
-      console.error("User creation error:", err);
+      console.error("User creation error object:", err);
     } finally {
       setIsLoading(false);
     }
@@ -166,6 +158,7 @@ const UserCreateForm = () => {
         </div>
       )}
       <form onSubmit={handleSubmit} className="space-y-6">
+        {/* Username and Email */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div>
             <label
@@ -203,6 +196,7 @@ const UserCreateForm = () => {
           </div>
         </div>
 
+        {/* Password and Confirm Password */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div>
             <label
@@ -242,6 +236,7 @@ const UserCreateForm = () => {
           </div>
         </div>
 
+        {/* First Name and Last Name */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div>
             <label
@@ -279,6 +274,7 @@ const UserCreateForm = () => {
           </div>
         </div>
 
+        {/* Role Selection */}
         <div>
           <label
             htmlFor="adminCreate_role"
@@ -296,12 +292,13 @@ const UserCreateForm = () => {
           >
             {Object.entries(ROLE_CONSTANTS).map(([key, value]) => (
               <option key={key} value={key}>
-                {value}
+                {value} 
               </option>
             ))}
           </select>
         </div>
 
+        {/* Doctor Specific Profile Fields */}
         {formData.role === ROLE_CONSTANTS.DOCTOR && (
           <fieldset className="border border-gray-300 p-4 rounded-md mt-4">
             <legend className="text-sm font-medium text-gray-700 px-1">
@@ -317,7 +314,7 @@ const UserCreateForm = () => {
                 </label>
                 <input
                   type="text"
-                  name="doctor_profile.specialization"
+                  name="doctor_profile.specialization" // Note the naming convention for nested state
                   id="adminCreate_specialization"
                   value={formData.doctor_profile.specialization}
                   onChange={handleChange}
@@ -333,7 +330,7 @@ const UserCreateForm = () => {
                 </label>
                 <input
                   type="text"
-                  name="doctor_profile.license_number"
+                  name="doctor_profile.license_number" // Note the naming convention
                   id="adminCreate_license_number"
                   value={formData.doctor_profile.license_number}
                   onChange={handleChange}
@@ -344,6 +341,7 @@ const UserCreateForm = () => {
           </fieldset>
         )}
 
+        {/* Nurse Specific Profile Fields */}
         {formData.role === ROLE_CONSTANTS.NURSE && (
           <fieldset className="border border-gray-300 p-4 rounded-md mt-4">
             <legend className="text-sm font-medium text-gray-700 px-1">
@@ -358,7 +356,7 @@ const UserCreateForm = () => {
               </label>
               <input
                 type="text"
-                name="nurse_profile.department"
+                name="nurse_profile.department" // Note the naming convention
                 id="adminCreate_department"
                 value={formData.nurse_profile.department}
                 onChange={handleChange}
@@ -368,6 +366,7 @@ const UserCreateForm = () => {
           </fieldset>
         )}
 
+        {/* Account Activation Status */}
         <div className="pt-2">
           <div className="flex items-center">
             <input
@@ -391,6 +390,7 @@ const UserCreateForm = () => {
           </p>
         </div>
 
+        {/* Submit and Cancel Buttons */}
         <div className="flex justify-end space-x-3 pt-5">
           <button
             type="button"

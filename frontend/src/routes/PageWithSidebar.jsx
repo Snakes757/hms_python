@@ -9,9 +9,10 @@ const PageWithSidebar = ({ children, title }) => {
 
   return (
     <ErrorBoundary>
-      <div className="flex h-screen bg-gray-100">
-        {user && <Sidebar />}
-        <main className="flex-1 flex flex-col overflow-hidden">
+      <div className="flex h-screen bg-gray-100"> {/* Use bg-gray-100 or your preferred page background */}
+        {user && <Sidebar />} {/* Sidebar component */}
+        <main className="flex-1 flex flex-col overflow-hidden"> {/* This outer main can keep overflow-hidden if sidebar behavior requires it */}
+          {/* Page Header */}
           {user && (
             <header className="bg-white shadow-md p-4 flex justify-between items-center">
               {title && (
@@ -36,9 +37,10 @@ const PageWithSidebar = ({ children, title }) => {
               </div>
             </header>
           )}
+          {/* Main Content Area - Removed overflow-x-hidden */}
           <div
-            className={`flex-1 overflow-x-hidden overflow-y-auto p-6 ${
-              !user ? "flex items-center justify-center" : ""
+            className={`flex-1 overflow-y-auto p-6 ${ // Removed overflow-x-hidden from here
+              !user ? "flex items-center justify-center" : "" // Centering if no user (e.g. for a public page using this layout)
             }`}
           >
             {children}

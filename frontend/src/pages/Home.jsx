@@ -1,11 +1,9 @@
-// src/pages/Home.jsx
 import React, { useContext } from "react";
 import { Link } from "react-router-dom";
 import { AuthContext } from "../context/AuthContext";
 import { USER_ROLES } from "../utils/constants";
 
 import AdminDashboardPage from "./dashboard/AdminDashboardPage";
-// Corrected: Pointing to DoctorDashboard.jsx as per file map
 import DoctorDashboardPage from "./dashboard/DoctorDashboard";
 import NurseDashboardPage from "./dashboard/NurseDashboardPage";
 import ReceptionistDashboardPage from "./dashboard/ReceptionistDashboardPage";

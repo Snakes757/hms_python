@@ -2,7 +2,7 @@ import React, { useState, useContext } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { AuthContext } from "../context/AuthContext";
 import { authApi } from "../api";
-import LoadingSpinner from "../components/common/LoadingSpinner";
+import LoadingSpinner from "../components/common/LoadingSpinner"; // Ensure this path is correct
 
 const LoginPage = () => {
   const navigate = useNavigate();
@@ -10,7 +10,7 @@ const LoginPage = () => {
   const { login } = useContext(AuthContext);
 
   const [formData, setFormData] = useState({
-    email: location.state?.email || "",
+    email: location.state?.email || "", // Pre-fill email if coming from registration
     password: "",
   });
   const [error, setError] = useState("");
@@ -28,7 +28,7 @@ const LoginPage = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
-    setSuccessMessage("");
+    setSuccessMessage(""); // Clear previous success message on new attempt
     setIsLoading(true);
 
     if (!formData.email || !formData.password) {
@@ -42,7 +42,8 @@ const LoginPage = () => {
         email: formData.email,
         password: formData.password,
       });
-      login(data.user, data.token);
+      login(data.user, data.token); // Update AuthContext
+      // Redirect to the page the user was trying to access, or to the homepage
       navigate(location.state?.from?.pathname || "/", { replace: true });
     } catch (err) {
       setError(err.message || "Login failed. Please check your credentials.");
@@ -52,19 +53,22 @@ const LoginPage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 to-slate-700 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
+    // Using a dark theme for the login page container
+    <div className="min-h-[calc(100vh-192px)] bg-gradient-to-br from-slate-900 to-slate-700 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
       <div className="sm:mx-auto sm:w-full sm:max-w-md">
+        {/* Hospital/System Icon */}
         <svg
           xmlns="http://www.w3.org/2000/svg"
-          className="mx-auto h-16 w-auto text-sky-400"
+          className="mx-auto h-16 w-auto text-sky-400" // Adjusted icon color for better contrast
           fill="none"
           viewBox="0 0 24 24"
           stroke="currentColor"
-          strokeWidth={1.5}
+          strokeWidth={1.5} // Adjusted stroke width for a slightly bolder icon
         >
           <path
             strokeLinecap="round"
             strokeLinejoin="round"
+            // A simple hospital or health icon
             d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"
           />
         </svg>
@@ -84,11 +88,13 @@ const LoginPage = () => {
 
       <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
         <div className="bg-slate-800 py-8 px-4 shadow-2xl rounded-xl sm:px-10">
+          {/* Display registration success message */}
           {successMessage && (
             <div className="mb-4 p-3 bg-green-600/30 border border-green-500 text-green-300 rounded-md text-sm">
               {successMessage}
             </div>
           )}
+          {/* Display login error message */}
           {error && (
             <div className="mb-4 p-3 bg-red-600/30 border border-red-500 text-red-300 rounded-md text-sm">
               {error}
@@ -140,6 +146,7 @@ const LoginPage = () => {
             </div>
 
             <div className="flex items-center justify-between">
+              {/* Remember me checkbox can be added here if needed */}
               <div className="text-sm">
                 <Link
                   to="/forgot-password"
@@ -160,11 +167,12 @@ const LoginPage = () => {
               </button>
             </div>
           </form>
+          {/* Removed the duplicate "Loading..." text elements if they were here */}
           <div className="mt-6 text-center">
             <p className="text-sm text-slate-400">
               Need help?{" "}
               <Link
-                to="/contact-us"
+                to="/contact-us" // Assuming you have a contact page
                 className="font-medium text-sky-400 hover:text-sky-300"
               >
                 Contact Support

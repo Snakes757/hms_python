@@ -1,27 +1,22 @@
 import React, { useState, useContext } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { authApi } from "../../api"; // Assuming authApi.registerUser exists
-import { AuthContext } from "../../context/AuthContext"; // login removed as it's not used
-import { USER_ROLES } from "../../utils/constants"; // For default role
+import { authApi } from "../../api"; // Assuming authApi is correctly exported from api/index.js
+import { AuthContext } from "../../context/AuthContext";
+import { USER_ROLES } from "../../utils/constants";
 import LoadingSpinner from "../common/LoadingSpinner";
 
-/**
- * @file RegisterForm.jsx
- * @description Component for user registration.
- * Allows new users to create an account, defaulting to PATIENT role.
- */
 const RegisterForm = () => {
   const navigate = useNavigate();
-  // const { login } = useContext(AuthContext); // 'login' was unused, removed.
+  // const { login } = useContext(AuthContext); // login context might not be needed here, but AuthContext could be for other reasons
 
   const [formData, setFormData] = useState({
     email: "",
     username: "",
     password: "",
-    password_confirm: "",
+    password_confirm: "", // Ensure this is part of the initial state
     first_name: "",
     last_name: "",
-    role: USER_ROLES.PATIENT, // Default role for public registration
+    role: USER_ROLES.PATIENT, // Default role
   });
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
@@ -41,7 +36,7 @@ const RegisterForm = () => {
       setError("Passwords do not match.");
       return;
     }
-    if (formData.password.length < 10) {
+    if (formData.password.length < 10) { // Assuming a min length of 10 from previous context
       setError("Password must be at least 10 characters long.");
       return;
     }
@@ -59,28 +54,45 @@ const RegisterForm = () => {
 
     setIsLoading(true);
 
-    // Prepare payload for registration API
-    // Exclude password_confirm as it's only for frontend validation
-    // 'password_confirm' from destructuring was unused, removed from destructuring. formData.password_confirm is used for validation above.
-    const { password_confirm: _, ...registrationPayload } = formData;
+    // Corrected payload: Include password_confirm
+    // The backend expects 'password_confirm' as per the error message.
+    // If the backend expects 'password2' or similar, adjust this accordingly.
+    const registrationPayload = {
+      email: formData.email,
+      username: formData.username,
+      password: formData.password,
+      password_confirm: formData.password_confirm, // Ensure this field is sent
+      first_name: formData.first_name,
+      last_name: formData.last_name,
+      role: formData.role,
+      // Add any other fields expected by your backend's registration endpoint
+      // e.g., doctor_profile, nurse_profile if role is DOCTOR or NURSE
+    };
+
+    // If role-specific profiles need to be sent during registration,
+    // ensure they are structured as the backend expects.
+    // Example (if backend handles this during initial registration):
+    // if (formData.role === USER_ROLES.DOCTOR && formData.doctor_profile) {
+    //   registrationPayload.doctor_profile = formData.doctor_profile;
+    // } else if (formData.role === USER_ROLES.NURSE && formData.nurse_profile) {
+    //   registrationPayload.nurse_profile = formData.nurse_profile;
+    // }
+
 
     try {
-      // 'responseData' was unused, so the assignment is removed.
-      await authApi.registerUser(registrationPayload);
+      // Assuming authApi.registerUser handles the API call
+      const response = await authApi.registerUser(registrationPayload);
       setSuccess("Registration successful! Redirecting to login...");
+      // console.log("Registration response:", response); // For debugging
 
-      // Optionally, attempt to log the user in immediately if the registration API returns a token
-      // This depends on the backend's UserRegistrationAPIView behavior.
-      // If it doesn't return a token, the user will need to log in manually.
-      // For now, we'll just redirect to login.
-
+      // Optionally, clear form or redirect
       setTimeout(() => {
         navigate("/login", {
           state: { registrationSuccess: true, email: formData.email },
         });
       }, 2000);
     } catch (err) {
-      // Attempt to parse backend error messages if they are JSON strings
+      // Enhanced error parsing
       let detailedError =
         err.message || "Registration failed. Please try again.";
       if (
@@ -88,16 +100,10 @@ const RegisterForm = () => {
         (err.message.includes("{") || err.message.includes("["))
       ) {
         try {
-          const errorObj = JSON.parse(
-            err.message.substring(
-              err.message.indexOf("{"),
-              err.message.lastIndexOf("}") + 1
-            ) ||
-              err.message.substring(
-                err.message.indexOf("["),
-                err.message.lastIndexOf("]") + 1
-              )
-          );
+          // Attempt to parse JSON-like error messages
+          const errorString = err.message.substring(err.message.indexOf("{"), err.message.lastIndexOf("}") + 1) ||
+                              err.message.substring(err.message.indexOf("["), err.message.lastIndexOf("]") + 1);
+          const errorObj = JSON.parse(errorString);
           const messages = Object.entries(errorObj)
             .map(
               ([field, msgs]) =>
@@ -108,12 +114,12 @@ const RegisterForm = () => {
             .join("; ");
           if (messages) detailedError = messages;
         } catch (_parseError) {
-          // Renamed to _parseError to indicate it's intentionally unused here
-          // If parsing fails, use the original error message
+          // If parsing fails, use the original message
+          console.warn("Could not parse detailed error message:", _parseError);
         }
       }
       setError(detailedError);
-      console.error("Registration error:", err);
+      console.error("Registration error object:", err); // Log the full error object
     } finally {
       setIsLoading(false);
     }
@@ -168,107 +174,111 @@ const RegisterForm = () => {
         )}
 
         <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
-          <div className="rounded-md shadow-sm -space-y-px">
-            <div>
-              <label htmlFor="first_name" className="sr-only">
-                First Name
-              </label>
-              <input
-                id="first_name"
-                name="first_name"
-                type="text"
-                autoComplete="given-name"
-                required
-                className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-t-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
-                placeholder="First Name"
-                value={formData.first_name}
-                onChange={handleChange}
-              />
-            </div>
-            <div>
-              <label htmlFor="last_name" className="sr-only">
-                Last Name
-              </label>
-              <input
-                id="last_name"
-                name="last_name"
-                type="text"
-                autoComplete="family-name"
-                required
-                className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
-                placeholder="Last Name"
-                value={formData.last_name}
-                onChange={handleChange}
-              />
-            </div>
-            <div>
-              <label htmlFor="username" className="sr-only">
-                Username
-              </label>
-              <input
-                id="username"
-                name="username"
-                type="text"
-                autoComplete="username"
-                required
-                className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
-                placeholder="Username"
-                value={formData.username}
-                onChange={handleChange}
-              />
-            </div>
-            <div>
-              <label htmlFor="email-address" className="sr-only">
-                Email address
-              </label>
-              <input
-                id="email-address"
-                name="email"
-                type="email"
-                autoComplete="email"
-                required
-                className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
-                placeholder="Email address"
-                value={formData.email}
-                onChange={handleChange}
-              />
-            </div>
-            <div>
-              <label htmlFor="password_reg" className="sr-only">
-                Password
-              </label>
-              <input
-                id="password_reg"
-                name="password"
-                type="password"
-                autoComplete="new-password"
-                required
-                minLength="10"
-                className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
-                placeholder="Password (min. 10 characters)"
-                value={formData.password}
-                onChange={handleChange}
-              />
-            </div>
-            <div>
-              <label htmlFor="password_confirm" className="sr-only">
-                Confirm Password
-              </label>
-              <input
-                id="password_confirm"
-                name="password_confirm"
-                type="password"
-                autoComplete="new-password"
-                required
-                className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-b-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
-                placeholder="Confirm Password"
-                value={formData.password_confirm}
-                onChange={handleChange}
-              />
-            </div>
+          {/* First Name */}
+          <div>
+            <label htmlFor="first_name" className="sr-only">
+              First Name
+            </label>
+            <input
+              id="first_name"
+              name="first_name"
+              type="text"
+              autoComplete="given-name"
+              required
+              className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-t-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
+              placeholder="First Name"
+              value={formData.first_name}
+              onChange={handleChange}
+            />
           </div>
-
-          {/* Role is defaulted to PATIENT and not shown on public registration form */}
+          {/* Last Name */}
+          <div>
+            <label htmlFor="last_name" className="sr-only">
+              Last Name
+            </label>
+            <input
+              id="last_name"
+              name="last_name"
+              type="text"
+              autoComplete="family-name"
+              required
+              className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
+              placeholder="Last Name"
+              value={formData.last_name}
+              onChange={handleChange}
+            />
+          </div>
+          {/* Username */}
+          <div>
+            <label htmlFor="username" className="sr-only">
+              Username
+            </label>
+            <input
+              id="username"
+              name="username"
+              type="text"
+              autoComplete="username"
+              required
+              className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
+              placeholder="Username"
+              value={formData.username}
+              onChange={handleChange}
+            />
+          </div>
+          {/* Email Address */}
+          <div>
+            <label htmlFor="email-address" className="sr-only">
+              Email address
+            </label>
+            <input
+              id="email-address"
+              name="email"
+              type="email"
+              autoComplete="email"
+              required
+              className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
+              placeholder="Email address"
+              value={formData.email}
+              onChange={handleChange}
+            />
+          </div>
+          {/* Password */}
+          <div>
+            <label htmlFor="password_reg" className="sr-only">
+              Password
+            </label>
+            <input
+              id="password_reg"
+              name="password"
+              type="password"
+              autoComplete="new-password"
+              required
+              minLength="10"
+              className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
+              placeholder="Password (min. 10 characters)"
+              value={formData.password}
+              onChange={handleChange}
+            />
+          </div>
+          {/* Confirm Password */}
+          <div>
+            <label htmlFor="password_confirm" className="sr-only">
+              Confirm Password
+            </label>
+            <input
+              id="password_confirm"
+              name="password_confirm"
+              type="password"
+              autoComplete="new-password"
+              required
+              className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-b-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
+              placeholder="Confirm Password"
+              value={formData.password_confirm}
+              onChange={handleChange}
+            />
+          </div>
+          
+          {/* Role (hidden, defaults to PATIENT) */}
           <input type="hidden" name="role" value={formData.role} />
 
           <div>

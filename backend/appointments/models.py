@@ -1,9 +1,9 @@
-# appointments/models.py
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 from django.conf import settings
 from django.utils import timezone
 from django.core.exceptions import ValidationError
+from django.db.models import Q # Ensure Q is imported if used in constraints
 
 from patients.models import Patient
 from users.models import UserRole # CustomUser is implicitly used via settings.AUTH_USER_MODEL
@@ -28,29 +28,28 @@ class AppointmentType(models.TextChoices):
 
 class Appointment(models.Model):
     """
-    Represents an appointment between a patient and a doctor.
-    Includes details like type, time, status, and associated personnel.
+    Represents a scheduled appointment between a patient and a doctor.
     """
     patient = models.ForeignKey(
         Patient,
-        on_delete=models.CASCADE,
+        on_delete=models.CASCADE, # If patient profile is deleted, their appointments are too.
         related_name='appointments',
         verbose_name=_("Patient")
     )
     doctor = models.ForeignKey(
         settings.AUTH_USER_MODEL,
-        on_delete=models.SET_NULL,
+        on_delete=models.SET_NULL, # If doctor account is deleted, keep appointment but set doctor to NULL.
         null=True, # A doctor must be assigned for a valid appointment, but SET_NULL requires null=True
         blank=False, # Make it required in forms/serializers
         related_name='doctor_appointments',
-        limit_choices_to={'role': UserRole.DOCTOR},
+        limit_choices_to={'role': UserRole.DOCTOR}, # Ensure only users with DOCTOR role can be selected.
         verbose_name=_("Doctor")
     )
     scheduled_by = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         on_delete=models.SET_NULL,
         null=True,
-        blank=True,
+        blank=True, # Can be system-scheduled or by patient themselves, or staff.
         related_name='scheduled_appointments',
         verbose_name=_("Scheduled By"),
         help_text=_("User who scheduled the appointment (e.g., patient, receptionist, admin).")
@@ -87,21 +86,22 @@ class Appointment(models.Model):
         help_text=_("Internal notes by staff or additional details from patient during booking.")
     )
     original_appointment = models.ForeignKey(
-        'self',
-        on_delete=models.SET_NULL,
+        'self', # Self-referential foreign key for rescheduling
+        on_delete=models.SET_NULL, # If original is deleted, this link becomes null
         null=True,
         blank=True,
         related_name='rescheduled_to',
         verbose_name=_("Original Appointment (if rescheduled)"),
         help_text=_("Link to the original appointment if this is a rescheduled one.")
     )
+    # Timestamps
     created_at = models.DateTimeField(auto_now_add=True, verbose_name=_("Created At"))
     updated_at = models.DateTimeField(auto_now=True, verbose_name=_("Updated At"))
 
     class Meta:
         verbose_name = _("Appointment")
         verbose_name_plural = _("Appointments")
-        ordering = ['appointment_date_time']
+        ordering = ['appointment_date_time'] # Default ordering
         indexes = [
             models.Index(fields=['doctor', 'appointment_date_time']),
             models.Index(fields=['patient', 'appointment_date_time']),
@@ -111,13 +111,15 @@ class Appointment(models.Model):
             models.UniqueConstraint(
                 fields=['doctor', 'appointment_date_time'],
                 name='unique_doctor_time_appointment',
+                # Condition to apply the constraint only for active/pending appointments
                 condition=models.Q(status__in=[AppointmentStatus.SCHEDULED, AppointmentStatus.CONFIRMED])
             )
         ]
 
     def __str__(self):
-        patient_name = self.patient.user.full_name if self.patient and self.patient.user else _("N/A")
-        doctor_name = self.doctor.full_name if self.doctor else _("Unassigned")
+        # Corrected: Use full_name_display property
+        patient_name = self.patient.user.full_name_display if self.patient and self.patient.user else _("N/A")
+        doctor_name = self.doctor.full_name_display if self.doctor else _("Unassigned")
         return _("%(type)s for %(patient)s with Dr. %(doctor)s on %(date)s") % {
             'type': self.get_appointment_type_display(),
             'patient': patient_name,
@@ -144,26 +146,36 @@ class Appointment(models.Model):
         ]
 
     def clean(self):
+        """
+        Custom validation for the Appointment model.
+        """
         super().clean()
+        # Prevent a doctor from being scheduled with themselves as a patient.
         if self.doctor and self.patient and self.doctor == self.patient.user:
             raise ValidationError(_("A doctor cannot be scheduled for an appointment with themselves as the patient."))
 
+        # Validate appointment_date_time for new appointments (not in the past)
         if self.appointment_date_time and self.estimated_duration_minutes:
             if self.appointment_date_time < timezone.now() and not self.pk: # For new appointments
-                 # Allow creating past appointments for record-keeping, but flag if it's very old or validate in serializer
+                # This validation might be better handled in forms/serializers for user-facing messages.
+                # For model-level, it's a strict rule.
                 pass # Consider if specific validation for past dates is needed here or in serializer
 
+        # Validate original_appointment logic
         if self.original_appointment:
             if self.original_appointment == self:
                 raise ValidationError(_("An appointment cannot be rescheduled to itself."))
             if self.original_appointment.status not in [AppointmentStatus.SCHEDULED, AppointmentStatus.CONFIRMED, AppointmentStatus.RESCHEDULED]:
-                 # Potentially allow rescheduling from other statuses based on policy
+                # This check might be too restrictive if other statuses are allowed for rescheduling.
+                # For now, it implies an original appointment should be in an active state to be rescheduled.
                 pass
-            # Ensure the original appointment is marked as RESCHEDULED when this one is saved (handled in signals or serializer)
 
     def save(self, *args, **kwargs):
+        """
+        Overrides the save method to perform additional logic.
+        """
+        # Example: Ensure a doctor is assigned for non-emergency types (though model field `blank=False` handles this)
         if not self.doctor and self.appointment_type != AppointmentType.EMERGENCY: # Doctor is usually required
-            # This validation is better suited for the form/serializer layer
-            # raise ValidationError(_("A doctor must be assigned to the appointment unless it's an emergency triage."))
+            # This might be redundant if `blank=False` on doctor field, but can be an explicit check.
             pass
         super().save(*args, **kwargs)

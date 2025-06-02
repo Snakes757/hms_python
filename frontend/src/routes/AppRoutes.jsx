@@ -66,7 +66,6 @@ const AppRoutes = () => {
 
   return (
     <Routes>
-      {/* Publicly Accessible Routes */}
       <Route
         path="/login"
         element={!token ? <LoginPage /> : <Navigate to="/" replace />}
@@ -85,61 +84,9 @@ const AppRoutes = () => {
       <Route path="/submit-inquiry" element={<InquiryCreatePage />} />
       <Route path="/unauthorized" element={<UnauthorizedPage />} />
 
-      {/* Authenticated Routes - Entry Point */}
-      <Route
-        path="/"
-        element={
-          <ProtectedRoute>
-            <HomePage />
-          </ProtectedRoute>
-        }
-      />
+      <Route path="/" element={<HomePage />} />
       <Route path="/home" element={<Navigate replace to="/" />} />
 
-      {/* Role-Specific Nested Routes */}
-      <Route
-        path="/admin/*"
-        element={
-          <RoleBasedRoute allowedRoles={[USER_ROLES.ADMIN]}>
-            <AdminRoutes />
-          </RoleBasedRoute>
-        }
-      />
-      <Route
-        path="/doctor/*"
-        element={
-          <RoleBasedRoute allowedRoles={[USER_ROLES.DOCTOR]}>
-            <DoctorRoutes />
-          </RoleBasedRoute>
-        }
-      />
-      <Route
-        path="/nurse/*"
-        element={
-          <RoleBasedRoute allowedRoles={[USER_ROLES.NURSE]}>
-            <NurseRoutes />
-          </RoleBasedRoute>
-        }
-      />
-      <Route
-        path="/receptionist/*"
-        element={
-          <RoleBasedRoute allowedRoles={[USER_ROLES.RECEPTIONIST]}>
-            <ReceptionistRoutes />
-          </RoleBasedRoute>
-        }
-      />
-      <Route
-        path="/patient/*"
-        element={
-          <RoleBasedRoute allowedRoles={[USER_ROLES.PATIENT]}>
-            <PatientRoutes />
-          </RoleBasedRoute>
-        }
-      />
-
-      {/* Common Authenticated Routes (accessible by multiple roles if not covered by specific role/* paths) */}
-      {/* These should ideally be part of the role-specific routes or handled by HomePage logic */}
       <Route
         path="/profile/me"
         element={
@@ -182,7 +129,6 @@ const AppRoutes = () => {
         element={
           <ProtectedRoute>
             {" "}
-            {}
             <PageWithSidebar title="Patient Details">
               <PatientProfilePage />
             </PageWithSidebar>
@@ -367,7 +313,6 @@ const AppRoutes = () => {
         element={
           <ProtectedRoute>
             {" "}
-            {}
             <InquiryCreatePage />
           </ProtectedRoute>
         }
@@ -380,6 +325,12 @@ const AppRoutes = () => {
           </ProtectedRoute>
         }
       />
+
+      <Route path="/admin/*" element={<AdminRoutes />} />
+      <Route path="/doctor/*" element={<DoctorRoutes />} />
+      <Route path="/nurse/*" element={<NurseRoutes />} />
+      <Route path="/receptionist/*" element={<ReceptionistRoutes />} />
+      <Route path="/patient/*" element={<PatientRoutes />} />
 
       <Route path="*" element={<NotFoundPage />} />
     </Routes>
