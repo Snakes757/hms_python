@@ -1761,3 +1761,368 @@ INFO 2025-06-02 05:39:45,973 basehttp 4648 17180 "GET /api/v1/patients/8/ HTTP/1
 INFO 2025-06-02 05:39:46,542 basehttp 4648 18776 "GET /api/v1/patients/8/ HTTP/1.1" 200 1452
 INFO 2025-06-02 05:52:39,217 autoreload 3640 20656 Watching for file changes with StatReloader
 INFO 2025-06-02 05:54:46,296 autoreload 12892 508 Watching for file changes with StatReloader
+INFO 2025-06-02 05:56:45,677 basehttp 12892 21592 "POST /api/v1/users/logout/ HTTP/1.1" 200 38
+INFO 2025-06-02 05:59:13,958 basehttp 12892 20688 "POST /api/v1/users/login/ HTTP/1.1" 200 404
+INFO 2025-06-02 05:59:16,492 basehttp 12892 8672 "GET /api/v1/users/profile/ HTTP/1.1" 200 314
+INFO 2025-06-02 05:59:35,449 basehttp 12892 14136 "GET /api/v1/users/profile/ HTTP/1.1" 200 314
+INFO 2025-06-02 05:59:39,135 basehttp 12892 22252 "GET /api/v1/users/profile/ HTTP/1.1" 200 314
+INFO 2025-06-02 06:11:38,632 basehttp 12892 12728 "GET /api/v1/dashboard/reports/ HTTP/1.1" 200 869
+INFO 2025-06-02 06:11:40,773 basehttp 12892 19928 "GET /api/v1/dashboard/reports/ HTTP/1.1" 200 869
+INFO 2025-06-02 06:12:08,062 basehttp 12892 9796 "GET /api/v1/users/profile/ HTTP/1.1" 200 314
+INFO 2025-06-02 06:12:09,801 basehttp 12892 6156 "GET /api/v1/users/profile/ HTTP/1.1" 200 314
+INFO 2025-06-02 06:12:33,195 basehttp 12892 17512 "GET /api/v1/users/ HTTP/1.1" 200 3122
+INFO 2025-06-02 06:12:35,846 basehttp 12892 21336 "GET /api/v1/users/ HTTP/1.1" 200 3122
+INFO 2025-06-02 06:18:54,687 basehttp 12892 17452 "GET /api/v1/users/profile/ HTTP/1.1" 200 314
+INFO 2025-06-02 06:18:54,692 basehttp 12892 15964 "GET /api/v1/users/ HTTP/1.1" 200 3122
+INFO 2025-06-02 06:18:56,684 basehttp 12892 20524 "GET /api/v1/users/profile/ HTTP/1.1" 200 314
+INFO 2025-06-02 06:18:57,095 basehttp 12892 14916 "GET /api/v1/users/ HTTP/1.1" 200 3122
+INFO 2025-06-02 06:19:20,393 basehttp 12892 3116 "GET /api/v1/users/ HTTP/1.1" 200 3122
+INFO 2025-06-02 06:23:41,788 basehttp 12892 5100 "GET /api/v1/users/ HTTP/1.1" 200 3122
+INFO 2025-06-02 06:23:54,693 basehttp 12892 20452 "GET /api/v1/users/ HTTP/1.1" 200 3122
+INFO 2025-06-02 06:23:55,146 basehttp 12892 15204 "GET /api/v1/users/profile/ HTTP/1.1" 200 314
+INFO 2025-06-02 06:23:56,717 basehttp 12892 14344 "GET /api/v1/users/ HTTP/1.1" 200 3122
+INFO 2025-06-02 06:23:57,117 basehttp 12892 13124 "GET /api/v1/users/profile/ HTTP/1.1" 200 314
+WARNING 2025-06-02 06:25:21,591 basehttp 12892 18792 "POST /api/v1/users/register/ HTTP/1.1" 400 48
+WARNING 2025-06-02 06:25:45,765 basehttp 12892 1176 "POST /api/v1/users/register/ HTTP/1.1" 400 48
+INFO 2025-06-02 06:31:10,744 basehttp 12892 15504 "GET /api/v1/users/profile/ HTTP/1.1" 200 314
+INFO 2025-06-02 06:31:15,188 basehttp 12892 10192 "GET /api/v1/users/profile/ HTTP/1.1" 200 314
+INFO 2025-06-02 06:32:53,307 basehttp 12892 16440 "POST /api/v1/users/register/ HTTP/1.1" 201 422
+INFO 2025-06-02 06:32:59,764 basehttp 12892 12044 "GET /api/v1/users/ HTTP/1.1" 200 3444
+INFO 2025-06-02 06:33:02,297 basehttp 12892 19716 "GET /api/v1/users/ HTTP/1.1" 200 3444
+INFO 2025-06-02 06:34:53,353 basehttp 12892 11484 "POST /api/v1/users/login/ HTTP/1.1" 200 421
+INFO 2025-06-02 06:34:56,068 basehttp 12892 17540 "GET /api/v1/users/profile/ HTTP/1.1" 200 331
+INFO 2025-06-02 06:34:57,591 basehttp 12892 22404 "GET /api/v1/appointments/?appointment_date_time__date=2025-06-02 HTTP/1.1" 200 3751
+INFO 2025-06-02 06:35:00,079 basehttp 12892 14000 "GET /api/v1/inquiries/?status__in=OPEN%2CIN_PROGRESS HTTP/1.1" 200 52
+INFO 2025-06-02 06:35:01,095 basehttp 12892 6244 "GET /api/v1/appointments/?appointment_date_time__date=2025-06-02 HTTP/1.1" 200 3751
+INFO 2025-06-02 06:35:02,895 basehttp 12892 13832 "GET /api/v1/inquiries/?status__in=OPEN%2CIN_PROGRESS HTTP/1.1" 200 52
+INFO 2025-06-02 06:35:13,072 basehttp 12892 19132 "GET /api/v1/appointments/?appointment_date_time__date=2025-06-02 HTTP/1.1" 200 3751
+INFO 2025-06-02 06:35:14,918 basehttp 12892 13260 "GET /api/v1/inquiries/?status__in=OPEN%2CIN_PROGRESS HTTP/1.1" 200 52
+INFO 2025-06-02 06:35:15,934 basehttp 12892 1536 "GET /api/v1/appointments/?appointment_date_time__date=2025-06-02 HTTP/1.1" 200 3751
+INFO 2025-06-02 06:35:17,780 basehttp 12892 13716 "GET /api/v1/inquiries/?status__in=OPEN%2CIN_PROGRESS HTTP/1.1" 200 52
+INFO 2025-06-02 06:35:27,208 basehttp 12892 10400 "GET /api/v1/patients/ HTTP/1.1" 200 1856
+INFO 2025-06-02 06:35:29,355 basehttp 12892 17872 "GET /api/v1/patients/ HTTP/1.1" 200 1856
+INFO 2025-06-02 06:35:46,689 basehttp 12892 4720 "GET /api/v1/appointments/ HTTP/1.1" 200 3751
+INFO 2025-06-02 06:35:49,726 basehttp 12892 15900 "GET /api/v1/appointments/ HTTP/1.1" 200 3751
+INFO 2025-06-02 06:35:54,034 basehttp 12892 10620 "GET /api/v1/appointments/?appointment_date_time__date=2025-06-02 HTTP/1.1" 200 3751
+INFO 2025-06-02 06:35:55,062 basehttp 12892 15092 "GET /api/v1/patients/ HTTP/1.1" 200 1856
+INFO 2025-06-02 06:35:56,075 basehttp 12892 21576 "GET /api/v1/inquiries/?status__in=OPEN%2CIN_PROGRESS HTTP/1.1" 200 52
+INFO 2025-06-02 06:35:57,211 basehttp 12892 6684 "GET /api/v1/patients/ HTTP/1.1" 200 1856
+INFO 2025-06-02 06:35:57,407 basehttp 12892 16952 "GET /api/v1/appointments/?appointment_date_time__date=2025-06-02 HTTP/1.1" 200 3751
+INFO 2025-06-02 06:35:59,100 basehttp 12892 15800 "GET /api/v1/inquiries/?status__in=OPEN%2CIN_PROGRESS HTTP/1.1" 200 52
+INFO 2025-06-02 06:36:01,820 basehttp 12892 14508 "GET /api/v1/patients/10/ HTTP/1.1" 200 598
+INFO 2025-06-02 06:36:04,075 basehttp 12892 13044 "GET /api/v1/patients/10/ HTTP/1.1" 200 598
+INFO 2025-06-02 06:36:06,318 basehttp 12892 2164 "GET /api/v1/patients/10/ HTTP/1.1" 200 598
+INFO 2025-06-02 06:36:08,366 basehttp 12892 21692 "GET /api/v1/patients/10/ HTTP/1.1" 200 598
+INFO 2025-06-02 06:36:10,928 basehttp 12892 8340 "GET /api/v1/patients/10/ HTTP/1.1" 200 598
+INFO 2025-06-02 06:36:13,707 basehttp 12892 2780 "GET /api/v1/patients/10/ HTTP/1.1" 200 598
+INFO 2025-06-02 06:36:15,956 basehttp 12892 14908 "GET /api/v1/patients/10/ HTTP/1.1" 200 598
+INFO 2025-06-02 06:36:18,305 basehttp 12892 20416 "GET /api/v1/patients/10/ HTTP/1.1" 200 598
+INFO 2025-06-02 06:36:20,560 basehttp 12892 7388 "GET /api/v1/patients/10/ HTTP/1.1" 200 598
+INFO 2025-06-02 06:36:22,992 basehttp 12892 10404 "GET /api/v1/patients/10/ HTTP/1.1" 200 598
+INFO 2025-06-02 06:36:53,009 basehttp 12892 1728 "POST /api/v1/users/login/ HTTP/1.1" 200 404
+INFO 2025-06-02 06:36:55,060 basehttp 12892 18672 "GET /api/v1/users/profile/ HTTP/1.1" 200 314
+ERROR 2025-06-02 06:37:00,902 log 12892 18664 Internal Server Error: /api/v1/telemedicine/
+Traceback (most recent call last):
+  File "C:\Users\Tshepiso Selemela\AppData\Local\Programs\Python\Python312\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+               ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Tshepiso Selemela\AppData\Local\Programs\Python\Python312\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Tshepiso Selemela\AppData\Local\Programs\Python\Python312\Lib\site-packages\django\views\decorators\csrf.py", line 65, in _view_wrapper
+    return view_func(request, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Tshepiso Selemela\AppData\Local\Programs\Python\Python312\Lib\site-packages\django\views\generic\base.py", line 104, in view
+    return self.dispatch(request, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Tshepiso Selemela\AppData\Local\Programs\Python\Python312\Lib\site-packages\rest_framework\views.py", line 509, in dispatch
+    response = self.handle_exception(exc)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Tshepiso Selemela\AppData\Local\Programs\Python\Python312\Lib\site-packages\rest_framework\views.py", line 469, in handle_exception
+    self.raise_uncaught_exception(exc)
+  File "C:\Users\Tshepiso Selemela\AppData\Local\Programs\Python\Python312\Lib\site-packages\rest_framework\views.py", line 480, in raise_uncaught_exception
+    raise exc
+  File "C:\Users\Tshepiso Selemela\AppData\Local\Programs\Python\Python312\Lib\site-packages\rest_framework\views.py", line 506, in dispatch
+    response = handler(request, *args, **kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Tshepiso Selemela\AppData\Local\Programs\Python\Python312\Lib\site-packages\rest_framework\generics.py", line 243, in get
+    return self.list(request, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Tshepiso Selemela\AppData\Local\Programs\Python\Python312\Lib\site-packages\rest_framework\mixins.py", line 38, in list
+    queryset = self.filter_queryset(self.get_queryset())
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Tshepiso Selemela\AppData\Local\Programs\Python\Python312\Lib\site-packages\rest_framework\generics.py", line 154, in filter_queryset
+    queryset = backend().filter_queryset(self.request, queryset, self)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Tshepiso Selemela\AppData\Local\Programs\Python\Python312\Lib\site-packages\django_filters\rest_framework\backends.py", line 66, in filter_queryset
+    filterset = self.get_filterset(request, queryset, view)
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Tshepiso Selemela\AppData\Local\Programs\Python\Python312\Lib\site-packages\django_filters\rest_framework\backends.py", line 18, in get_filterset
+    filterset_class = self.get_filterset_class(view, queryset)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Tshepiso Selemela\AppData\Local\Programs\Python\Python312\Lib\site-packages\django_filters\rest_framework\backends.py", line 49, in get_filterset_class
+    class AutoFilterSet(self.filterset_base):
+  File "C:\Users\Tshepiso Selemela\AppData\Local\Programs\Python\Python312\Lib\site-packages\django_filters\filterset.py", line 82, in __new__
+    new_class.base_filters = new_class.get_filters()
+                             ^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Tshepiso Selemela\AppData\Local\Programs\Python\Python312\Lib\site-packages\django_filters\filterset.py", line 371, in get_filters
+    raise TypeError(
+TypeError: 'Meta.fields' must not contain non-model field names: session_start_time__date
+ERROR 2025-06-02 06:37:00,937 basehttp 12892 18664 "GET /api/v1/telemedicine/ HTTP/1.1" 500 145
+ERROR 2025-06-02 06:37:02,532 log 12892 12916 Internal Server Error: /api/v1/telemedicine/
+Traceback (most recent call last):
+  File "C:\Users\Tshepiso Selemela\AppData\Local\Programs\Python\Python312\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+               ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Tshepiso Selemela\AppData\Local\Programs\Python\Python312\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Tshepiso Selemela\AppData\Local\Programs\Python\Python312\Lib\site-packages\django\views\decorators\csrf.py", line 65, in _view_wrapper
+    return view_func(request, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Tshepiso Selemela\AppData\Local\Programs\Python\Python312\Lib\site-packages\django\views\generic\base.py", line 104, in view
+    return self.dispatch(request, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Tshepiso Selemela\AppData\Local\Programs\Python\Python312\Lib\site-packages\rest_framework\views.py", line 509, in dispatch
+    response = self.handle_exception(exc)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Tshepiso Selemela\AppData\Local\Programs\Python\Python312\Lib\site-packages\rest_framework\views.py", line 469, in handle_exception
+    self.raise_uncaught_exception(exc)
+  File "C:\Users\Tshepiso Selemela\AppData\Local\Programs\Python\Python312\Lib\site-packages\rest_framework\views.py", line 480, in raise_uncaught_exception
+    raise exc
+  File "C:\Users\Tshepiso Selemela\AppData\Local\Programs\Python\Python312\Lib\site-packages\rest_framework\views.py", line 506, in dispatch
+    response = handler(request, *args, **kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Tshepiso Selemela\AppData\Local\Programs\Python\Python312\Lib\site-packages\rest_framework\generics.py", line 243, in get
+    return self.list(request, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Tshepiso Selemela\AppData\Local\Programs\Python\Python312\Lib\site-packages\rest_framework\mixins.py", line 38, in list
+    queryset = self.filter_queryset(self.get_queryset())
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Tshepiso Selemela\AppData\Local\Programs\Python\Python312\Lib\site-packages\rest_framework\generics.py", line 154, in filter_queryset
+    queryset = backend().filter_queryset(self.request, queryset, self)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Tshepiso Selemela\AppData\Local\Programs\Python\Python312\Lib\site-packages\django_filters\rest_framework\backends.py", line 66, in filter_queryset
+    filterset = self.get_filterset(request, queryset, view)
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Tshepiso Selemela\AppData\Local\Programs\Python\Python312\Lib\site-packages\django_filters\rest_framework\backends.py", line 18, in get_filterset
+    filterset_class = self.get_filterset_class(view, queryset)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Tshepiso Selemela\AppData\Local\Programs\Python\Python312\Lib\site-packages\django_filters\rest_framework\backends.py", line 49, in get_filterset_class
+    class AutoFilterSet(self.filterset_base):
+  File "C:\Users\Tshepiso Selemela\AppData\Local\Programs\Python\Python312\Lib\site-packages\django_filters\filterset.py", line 82, in __new__
+    new_class.base_filters = new_class.get_filters()
+                             ^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Tshepiso Selemela\AppData\Local\Programs\Python\Python312\Lib\site-packages\django_filters\filterset.py", line 371, in get_filters
+    raise TypeError(
+TypeError: 'Meta.fields' must not contain non-model field names: session_start_time__date
+ERROR 2025-06-02 06:37:02,536 basehttp 12892 12916 "GET /api/v1/telemedicine/ HTTP/1.1" 500 145
+ERROR 2025-06-02 06:44:42,959 log 12892 7092 Internal Server Error: /api/v1/telemedicine/
+Traceback (most recent call last):
+  File "C:\Users\Tshepiso Selemela\AppData\Local\Programs\Python\Python312\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+               ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Tshepiso Selemela\AppData\Local\Programs\Python\Python312\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Tshepiso Selemela\AppData\Local\Programs\Python\Python312\Lib\site-packages\django\views\decorators\csrf.py", line 65, in _view_wrapper
+    return view_func(request, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Tshepiso Selemela\AppData\Local\Programs\Python\Python312\Lib\site-packages\django\views\generic\base.py", line 104, in view
+    return self.dispatch(request, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Tshepiso Selemela\AppData\Local\Programs\Python\Python312\Lib\site-packages\rest_framework\views.py", line 509, in dispatch
+    response = self.handle_exception(exc)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Tshepiso Selemela\AppData\Local\Programs\Python\Python312\Lib\site-packages\rest_framework\views.py", line 469, in handle_exception
+    self.raise_uncaught_exception(exc)
+  File "C:\Users\Tshepiso Selemela\AppData\Local\Programs\Python\Python312\Lib\site-packages\rest_framework\views.py", line 480, in raise_uncaught_exception
+    raise exc
+  File "C:\Users\Tshepiso Selemela\AppData\Local\Programs\Python\Python312\Lib\site-packages\rest_framework\views.py", line 506, in dispatch
+    response = handler(request, *args, **kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Tshepiso Selemela\AppData\Local\Programs\Python\Python312\Lib\site-packages\rest_framework\generics.py", line 243, in get
+    return self.list(request, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Tshepiso Selemela\AppData\Local\Programs\Python\Python312\Lib\site-packages\rest_framework\mixins.py", line 38, in list
+    queryset = self.filter_queryset(self.get_queryset())
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Tshepiso Selemela\AppData\Local\Programs\Python\Python312\Lib\site-packages\rest_framework\generics.py", line 154, in filter_queryset
+    queryset = backend().filter_queryset(self.request, queryset, self)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Tshepiso Selemela\AppData\Local\Programs\Python\Python312\Lib\site-packages\django_filters\rest_framework\backends.py", line 66, in filter_queryset
+    filterset = self.get_filterset(request, queryset, view)
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Tshepiso Selemela\AppData\Local\Programs\Python\Python312\Lib\site-packages\django_filters\rest_framework\backends.py", line 18, in get_filterset
+    filterset_class = self.get_filterset_class(view, queryset)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Tshepiso Selemela\AppData\Local\Programs\Python\Python312\Lib\site-packages\django_filters\rest_framework\backends.py", line 49, in get_filterset_class
+    class AutoFilterSet(self.filterset_base):
+  File "C:\Users\Tshepiso Selemela\AppData\Local\Programs\Python\Python312\Lib\site-packages\django_filters\filterset.py", line 82, in __new__
+    new_class.base_filters = new_class.get_filters()
+                             ^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Tshepiso Selemela\AppData\Local\Programs\Python\Python312\Lib\site-packages\django_filters\filterset.py", line 371, in get_filters
+    raise TypeError(
+TypeError: 'Meta.fields' must not contain non-model field names: session_start_time__date
+ERROR 2025-06-02 06:44:43,062 basehttp 12892 7092 "GET /api/v1/telemedicine/ HTTP/1.1" 500 145
+ERROR 2025-06-02 06:44:46,049 log 12892 7184 Internal Server Error: /api/v1/telemedicine/
+Traceback (most recent call last):
+  File "C:\Users\Tshepiso Selemela\AppData\Local\Programs\Python\Python312\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+               ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Tshepiso Selemela\AppData\Local\Programs\Python\Python312\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Tshepiso Selemela\AppData\Local\Programs\Python\Python312\Lib\site-packages\django\views\decorators\csrf.py", line 65, in _view_wrapper
+    return view_func(request, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Tshepiso Selemela\AppData\Local\Programs\Python\Python312\Lib\site-packages\django\views\generic\base.py", line 104, in view
+    return self.dispatch(request, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Tshepiso Selemela\AppData\Local\Programs\Python\Python312\Lib\site-packages\rest_framework\views.py", line 509, in dispatch
+    response = self.handle_exception(exc)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Tshepiso Selemela\AppData\Local\Programs\Python\Python312\Lib\site-packages\rest_framework\views.py", line 469, in handle_exception
+    self.raise_uncaught_exception(exc)
+  File "C:\Users\Tshepiso Selemela\AppData\Local\Programs\Python\Python312\Lib\site-packages\rest_framework\views.py", line 480, in raise_uncaught_exception
+    raise exc
+  File "C:\Users\Tshepiso Selemela\AppData\Local\Programs\Python\Python312\Lib\site-packages\rest_framework\views.py", line 506, in dispatch
+    response = handler(request, *args, **kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Tshepiso Selemela\AppData\Local\Programs\Python\Python312\Lib\site-packages\rest_framework\generics.py", line 243, in get
+    return self.list(request, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Tshepiso Selemela\AppData\Local\Programs\Python\Python312\Lib\site-packages\rest_framework\mixins.py", line 38, in list
+    queryset = self.filter_queryset(self.get_queryset())
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Tshepiso Selemela\AppData\Local\Programs\Python\Python312\Lib\site-packages\rest_framework\generics.py", line 154, in filter_queryset
+    queryset = backend().filter_queryset(self.request, queryset, self)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Tshepiso Selemela\AppData\Local\Programs\Python\Python312\Lib\site-packages\django_filters\rest_framework\backends.py", line 66, in filter_queryset
+    filterset = self.get_filterset(request, queryset, view)
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Tshepiso Selemela\AppData\Local\Programs\Python\Python312\Lib\site-packages\django_filters\rest_framework\backends.py", line 18, in get_filterset
+    filterset_class = self.get_filterset_class(view, queryset)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Tshepiso Selemela\AppData\Local\Programs\Python\Python312\Lib\site-packages\django_filters\rest_framework\backends.py", line 49, in get_filterset_class
+    class AutoFilterSet(self.filterset_base):
+  File "C:\Users\Tshepiso Selemela\AppData\Local\Programs\Python\Python312\Lib\site-packages\django_filters\filterset.py", line 82, in __new__
+    new_class.base_filters = new_class.get_filters()
+                             ^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Tshepiso Selemela\AppData\Local\Programs\Python\Python312\Lib\site-packages\django_filters\filterset.py", line 371, in get_filters
+    raise TypeError(
+TypeError: 'Meta.fields' must not contain non-model field names: session_start_time__date
+ERROR 2025-06-02 06:44:46,241 basehttp 12892 7184 "GET /api/v1/telemedicine/ HTTP/1.1" 500 145
+ERROR 2025-06-02 06:45:09,554 log 12892 15076 Internal Server Error: /api/v1/telemedicine/
+Traceback (most recent call last):
+  File "C:\Users\Tshepiso Selemela\AppData\Local\Programs\Python\Python312\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+               ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Tshepiso Selemela\AppData\Local\Programs\Python\Python312\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Tshepiso Selemela\AppData\Local\Programs\Python\Python312\Lib\site-packages\django\views\decorators\csrf.py", line 65, in _view_wrapper
+    return view_func(request, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Tshepiso Selemela\AppData\Local\Programs\Python\Python312\Lib\site-packages\django\views\generic\base.py", line 104, in view
+    return self.dispatch(request, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Tshepiso Selemela\AppData\Local\Programs\Python\Python312\Lib\site-packages\rest_framework\views.py", line 509, in dispatch
+    response = self.handle_exception(exc)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Tshepiso Selemela\AppData\Local\Programs\Python\Python312\Lib\site-packages\rest_framework\views.py", line 469, in handle_exception
+    self.raise_uncaught_exception(exc)
+  File "C:\Users\Tshepiso Selemela\AppData\Local\Programs\Python\Python312\Lib\site-packages\rest_framework\views.py", line 480, in raise_uncaught_exception
+    raise exc
+  File "C:\Users\Tshepiso Selemela\AppData\Local\Programs\Python\Python312\Lib\site-packages\rest_framework\views.py", line 506, in dispatch
+    response = handler(request, *args, **kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Tshepiso Selemela\AppData\Local\Programs\Python\Python312\Lib\site-packages\rest_framework\generics.py", line 243, in get
+    return self.list(request, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Tshepiso Selemela\AppData\Local\Programs\Python\Python312\Lib\site-packages\rest_framework\mixins.py", line 38, in list
+    queryset = self.filter_queryset(self.get_queryset())
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Tshepiso Selemela\AppData\Local\Programs\Python\Python312\Lib\site-packages\rest_framework\generics.py", line 154, in filter_queryset
+    queryset = backend().filter_queryset(self.request, queryset, self)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Tshepiso Selemela\AppData\Local\Programs\Python\Python312\Lib\site-packages\django_filters\rest_framework\backends.py", line 66, in filter_queryset
+    filterset = self.get_filterset(request, queryset, view)
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Tshepiso Selemela\AppData\Local\Programs\Python\Python312\Lib\site-packages\django_filters\rest_framework\backends.py", line 18, in get_filterset
+    filterset_class = self.get_filterset_class(view, queryset)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Tshepiso Selemela\AppData\Local\Programs\Python\Python312\Lib\site-packages\django_filters\rest_framework\backends.py", line 49, in get_filterset_class
+    class AutoFilterSet(self.filterset_base):
+  File "C:\Users\Tshepiso Selemela\AppData\Local\Programs\Python\Python312\Lib\site-packages\django_filters\filterset.py", line 82, in __new__
+    new_class.base_filters = new_class.get_filters()
+                             ^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Tshepiso Selemela\AppData\Local\Programs\Python\Python312\Lib\site-packages\django_filters\filterset.py", line 371, in get_filters
+    raise TypeError(
+TypeError: 'Meta.fields' must not contain non-model field names: session_start_time__date
+ERROR 2025-06-02 06:45:09,563 basehttp 12892 15076 "GET /api/v1/telemedicine/ HTTP/1.1" 500 145
+INFO 2025-06-02 06:45:10,277 basehttp 12892 7056 "GET /api/v1/users/profile/ HTTP/1.1" 200 314
+ERROR 2025-06-02 06:45:11,194 log 12892 15104 Internal Server Error: /api/v1/telemedicine/
+Traceback (most recent call last):
+  File "C:\Users\Tshepiso Selemela\AppData\Local\Programs\Python\Python312\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+               ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Tshepiso Selemela\AppData\Local\Programs\Python\Python312\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Tshepiso Selemela\AppData\Local\Programs\Python\Python312\Lib\site-packages\django\views\decorators\csrf.py", line 65, in _view_wrapper
+    return view_func(request, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Tshepiso Selemela\AppData\Local\Programs\Python\Python312\Lib\site-packages\django\views\generic\base.py", line 104, in view
+    return self.dispatch(request, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Tshepiso Selemela\AppData\Local\Programs\Python\Python312\Lib\site-packages\rest_framework\views.py", line 509, in dispatch
+    response = self.handle_exception(exc)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Tshepiso Selemela\AppData\Local\Programs\Python\Python312\Lib\site-packages\rest_framework\views.py", line 469, in handle_exception
+    self.raise_uncaught_exception(exc)
+  File "C:\Users\Tshepiso Selemela\AppData\Local\Programs\Python\Python312\Lib\site-packages\rest_framework\views.py", line 480, in raise_uncaught_exception
+    raise exc
+  File "C:\Users\Tshepiso Selemela\AppData\Local\Programs\Python\Python312\Lib\site-packages\rest_framework\views.py", line 506, in dispatch
+    response = handler(request, *args, **kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Tshepiso Selemela\AppData\Local\Programs\Python\Python312\Lib\site-packages\rest_framework\generics.py", line 243, in get
+    return self.list(request, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Tshepiso Selemela\AppData\Local\Programs\Python\Python312\Lib\site-packages\rest_framework\mixins.py", line 38, in list
+    queryset = self.filter_queryset(self.get_queryset())
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Tshepiso Selemela\AppData\Local\Programs\Python\Python312\Lib\site-packages\rest_framework\generics.py", line 154, in filter_queryset
+    queryset = backend().filter_queryset(self.request, queryset, self)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Tshepiso Selemela\AppData\Local\Programs\Python\Python312\Lib\site-packages\django_filters\rest_framework\backends.py", line 66, in filter_queryset
+    filterset = self.get_filterset(request, queryset, view)
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Tshepiso Selemela\AppData\Local\Programs\Python\Python312\Lib\site-packages\django_filters\rest_framework\backends.py", line 18, in get_filterset
+    filterset_class = self.get_filterset_class(view, queryset)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Tshepiso Selemela\AppData\Local\Programs\Python\Python312\Lib\site-packages\django_filters\rest_framework\backends.py", line 49, in get_filterset_class
+    class AutoFilterSet(self.filterset_base):
+  File "C:\Users\Tshepiso Selemela\AppData\Local\Programs\Python\Python312\Lib\site-packages\django_filters\filterset.py", line 82, in __new__
+    new_class.base_filters = new_class.get_filters()
+                             ^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Tshepiso Selemela\AppData\Local\Programs\Python\Python312\Lib\site-packages\django_filters\filterset.py", line 371, in get_filters
+    raise TypeError(
+TypeError: 'Meta.fields' must not contain non-model field names: session_start_time__date
+ERROR 2025-06-02 06:45:11,200 basehttp 12892 15104 "GET /api/v1/telemedicine/ HTTP/1.1" 500 145
+INFO 2025-06-02 06:45:12,443 basehttp 12892 21228 "GET /api/v1/users/profile/ HTTP/1.1" 200 314
+INFO 2025-06-02 06:45:24,572 basehttp 12892 14404 "GET /api/v1/users/?role=DOCTOR&is_active=true HTTP/1.1" 200 1150
+INFO 2025-06-02 06:45:27,084 basehttp 12892 6328 "GET /api/v1/users/?role=DOCTOR&is_active=true HTTP/1.1" 200 1150
+INFO 2025-06-02 06:45:27,123 basehttp 12892 1088 "GET /api/v1/patients/ HTTP/1.1" 200 1856
+INFO 2025-06-02 06:45:29,356 basehttp 12892 14396 "GET /api/v1/patients/ HTTP/1.1" 200 1856
+INFO 2025-06-02 06:45:29,425 basehttp 12892 10380 "GET /api/v1/appointments/?appointment_type=TELEMEDICINE&telemedicine_session_details__isnull=true HTTP/1.1" 200 52
+INFO 2025-06-02 06:45:31,365 basehttp 12892 20896 "GET /api/v1/appointments/?appointment_type=TELEMEDICINE&telemedicine_session_details__isnull=true HTTP/1.1" 200 52
+INFO 2025-06-02 06:49:18,854 basehttp 12892 21752 "GET /api/v1/users/?role=DOCTOR&is_active=true HTTP/1.1" 200 1150
+INFO 2025-06-02 06:49:25,085 basehttp 12892 21156 "GET /api/v1/users/profile/ HTTP/1.1" 200 314
+INFO 2025-06-02 06:49:25,097 basehttp 12892 15000 "GET /api/v1/users/?role=DOCTOR&is_active=true HTTP/1.1" 200 1150
+INFO 2025-06-02 06:49:26,972 basehttp 12892 14908 "GET /api/v1/users/profile/ HTTP/1.1" 200 314
+INFO 2025-06-02 06:49:27,256 basehttp 12892 20288 "GET /api/v1/patients/ HTTP/1.1" 200 1856
+INFO 2025-06-02 06:49:27,359 basehttp 12892 13700 "GET /api/v1/users/?role=DOCTOR&is_active=true HTTP/1.1" 200 1150
+INFO 2025-06-02 06:49:29,969 basehttp 12892 18536 "GET /api/v1/appointments/?appointment_type=TELEMEDICINE HTTP/1.1" 200 52
+INFO 2025-06-02 06:49:30,175 basehttp 12892 17008 "GET /api/v1/patients/ HTTP/1.1" 200 1856
+INFO 2025-06-02 06:49:32,221 basehttp 12892 17028 "GET /api/v1/appointments/?appointment_type=TELEMEDICINE HTTP/1.1" 200 52

@@ -1,11 +1,52 @@
 // src/api/patients.js
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '/api/v1';
 
-/**
- * Lists all patients.
- * Accessible by Doctor, Nurse, Admin, Receptionist.
- * @returns {Promise<Array<object>>} A list of patient objects.
- */
+// Helper function for consistent response handling (can be moved to a shared util if used widely)
+const handleApiResponse = async (response) => {
+  if (!response.ok) {
+    let errorData;
+    const contentType = response.headers.get("content-type");
+    if (contentType && contentType.indexOf("application/json") !== -1) {
+      errorData = await response.json().catch(() => ({ detail: `HTTP error! Status: ${response.status}. Failed to parse JSON error.` }));
+    } else {
+      const textError = await response.text();
+      // Check if the textError is an HTML page (simple check for <!doctype html)
+      if (textError && textError.toLowerCase().includes("<!doctype html")) {
+          errorData = { detail: `Server Error: Received HTML page instead of JSON. Status: ${response.status}` };
+      } else {
+          errorData = { detail: textError || `HTTP error! Status: ${response.status}. Non-JSON response.` };
+      }
+    }
+    
+    let detailedMessage = errorData.detail || `HTTP error! Status: ${response.status}`;
+    // Fallback for other structured errors if detail is not present
+    if (typeof errorData === 'object' && Object.keys(errorData).length > 0 && !errorData.detail) {
+        detailedMessage = Object.entries(errorData)
+            .map(([field, messages]) => `${field}: ${Array.isArray(messages) ? messages.join(', ') : messages}`)
+            .join('; ');
+        if (!detailedMessage) detailedMessage = `HTTP error! Status: ${response.status}. Unknown error structure.`;
+    }
+    throw new Error(detailedMessage);
+  }
+
+  // Handle 204 No Content specifically
+  if (response.status === 204) {
+    return null; 
+  }
+
+  const text = await response.text();
+  if (!text) {
+    return null; // Or an appropriate empty state depending on what the caller expects
+  }
+  try {
+    return JSON.parse(text);
+  } catch (e) {
+    console.error("Failed to parse JSON response:", e, "Response text:", text);
+    throw new Error("Invalid JSON response from server.");
+  }
+};
+
+
 export const listAllPatients = async () => {
   const token = localStorage.getItem('authToken');
   if (!token) {
@@ -20,28 +61,21 @@ export const listAllPatients = async () => {
         'Authorization': `Token ${token}`,
       },
     });
-    if (!response.ok) {
-      const errorData = await response.json();
-      throw new Error(errorData.detail || `HTTP error! status: ${response.status}`);
-    }
-    const data = await response.json();
-    return data.results || data; // Handle paginated or non-paginated response
+    const data = await handleApiResponse(response); // Use robust handler
+    return data ? (data.results || data) : []; // Ensure array return for list
   } catch (error) {
-    console.error('Failed to list patients:', error);
+    console.error('Failed to list patients:', error.message);
     throw error;
   }
 };
 
-/**
- * Retrieves a specific patient's profile by their user ID.
- * Accessible by Patient (own), Doctor, Nurse, Admin, Receptionist.
- * @param {number} userId - The user ID of the patient.
- * @returns {Promise<object>} The patient's profile data.
- */
 export const getPatientByUserId = async (userId) => {
   const token = localStorage.getItem('authToken');
   if (!token) {
-    return Promise.reject(new Error("No authentication token found. Access required."));
+    return Promise.reject(new Error("Authentication token not found. Please log in."));
+  }
+  if (!userId || userId === 'undefined') { // Explicitly check for "undefined" string if it might come from URL params
+    return Promise.reject(new Error("Invalid or missing Patient User ID provided for fetching profile."));
   }
 
   try {
@@ -52,51 +86,34 @@ export const getPatientByUserId = async (userId) => {
         'Authorization': `Token ${token}`,
       },
     });
-    if (!response.ok) {
-      const errorData = await response.json();
-      throw new Error(errorData.detail || `HTTP error! status: ${response.status}`);
-    }
-    return await response.json();
+    return await handleApiResponse(response); // Use robust handler
   } catch (error) {
-    console.error(`Failed to retrieve patient profile for user ID ${userId}:`, error);
+    console.error(`Failed to retrieve patient profile for user ID ${userId}:`, error.message);
     throw error;
   }
 };
 
-/**
- * Updates a specific patient's profile by their user ID.
- * Typically for Admin, Doctor (limited), Receptionist (limited).
- * @param {number} userId - The user ID of the patient.
- * @param {object} patientData - The data to update.
- * @returns {Promise<object>} The updated patient profile data.
- */
 export const updatePatientByUserId = async (userId, patientData) => {
   const token = localStorage.getItem('authToken');
   if (!token) {
     return Promise.reject(new Error("No authentication token found. Staff access required."));
   }
+   if (!userId || userId === 'undefined') {
+    return Promise.reject(new Error("Invalid or missing Patient User ID provided for update."));
+  }
 
   try {
     const response = await fetch(`${API_BASE_URL}/patients/${userId}/`, {
-      method: 'PATCH', // PATCH is generally preferred for updates
+      method: 'PATCH', // Using PATCH for partial updates is common
       headers: {
         'Content-Type': 'application/json',
         'Authorization': `Token ${token}`,
       },
       body: JSON.stringify(patientData),
     });
-    if (!response.ok) {
-      const errorData = await response.json();
-      throw new Error(errorData.detail || `HTTP error! status: ${response.status}`);
-    }
-    return await response.json();
+    return await handleApiResponse(response); // Use robust handler
   } catch (error) {
-    console.error(`Failed to update patient profile for user ID ${userId}:`, error);
+    console.error(`Failed to update patient profile for user ID ${userId}:`, error.message);
     throw error;
   }
 };
-
-// Note: Patient creation is typically handled via User Registration (/api/v1/users/register/)
-// where if role=PATIENT, a Patient profile is automatically created by a backend signal.
-// Direct creation via /api/v1/patients/ might not be standard flow unless it's for admins
-// linking an existing user (without patient role) to a new patient profile, which is less common.

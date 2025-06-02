@@ -1,8 +1,7 @@
 import React, { useState, useContext, useEffect } from "react";
 import { useParams, useLocation } from "react-router-dom";
-import PatientProfile from "../../components/patients/PatientProfile"; // This is the Patient Details tab content
-// PageWithSidebar is removed from here as it's applied by AppRoutes
-import ProtectedRoute from "../../components/common/ProtectedRoute"; // This might be redundant if AppRoutes handles it
+import PatientProfile from "../../components/patients/PatientProfile"; // Original child component
+import ProtectedRoute from "../../components/common/ProtectedRoute"; // Assuming this is for the page itself, not used directly here
 import MedicalRecordsList from "../../components/medical/MedicalRecordsList";
 import RecordForm from "../../components/medical/RecordForm";
 import PrescriptionList from "../../components/medical/PrescriptionsList";
@@ -15,11 +14,12 @@ import { AuthContext } from "../../context/AuthContext";
 import usePermissions from "../../hooks/usePermissions";
 import { patientsApi } from "../../api";
 import LoadingSpinner from "../../components/common/LoadingSpinner";
+import { USER_ROLES } from "../../utils/constants"; // For permission checks
 
 const PatientProfilePage = () => {
-  const { userId } = useParams(); // This is the patient's user ID from the URL
-  const { user: currentUser } = useContext(AuthContext);
-  const { can, isRole } = usePermissions();
+  const { userId } = useParams(); // Get userId from URL
+  const { user: currentUser, loading: authLoading } = useContext(AuthContext);
+  const { can } = usePermissions();
   const location = useLocation();
 
   const [patientData, setPatientData] = useState(null);
@@ -38,80 +38,114 @@ const PatientProfilePage = () => {
   const [editingItem, setEditingItem] = useState(null);
 
   useEffect(() => {
+    console.log("[PatientProfilePage] useEffect triggered. Deps:", { userId, currentUser, authLoading });
+
+    if (authLoading) {
+      console.log("[PatientProfilePage] Auth context is loading. Waiting...");
+      setLoadingPatient(true); // Ensure loading spinner shows while auth is resolving
+      return;
+    }
+
     const fetchPatient = async () => {
-      if (!userId) {
-        setPatientError("Patient User ID is missing from URL.");
+      console.log(`[PatientProfilePage] fetchPatient called. userId: ${userId}. currentUser: ${currentUser ? currentUser.id : 'null'}`);
+      
+      if (!userId || userId === "undefined") { // Check for string "undefined" as well
+        setPatientError("Patient User ID is invalid or missing from URL.");
         setLoadingPatient(false);
+        console.log("[PatientProfilePage] Invalid userId. Error set. Loading false.");
         return;
       }
-      // Ensure the user viewing this page is either the patient themselves
-      // or a staff member with permission.
-      if (
-        !currentUser ||
-        (currentUser.role === "PATIENT" && currentUser.id.toString() !== userId)
-      ) {
-        // Further check if staff member has permission
-        if (!can("VIEW_PATIENT_PROFILE") && !can("VIEW_PATIENT_MEDICAL_RECORDS")) {
-            setPatientError("You do not have permission to view this patient's profile.");
-            setLoadingPatient(false);
-            return;
-        }
+
+      if (!currentUser) {
+        setPatientError("User not authenticated. Please log in.");
+        setLoadingPatient(false);
+        console.log("[PatientProfilePage] No currentUser. Error set. Loading false.");
+        return;
+      }
+      
+      const isSelf = currentUser.role === USER_ROLES.PATIENT && currentUser.id.toString() === userId;
+      const hasGeneralViewPermission = can("VIEW_PATIENT_PROFILE") || can("VIEW_PATIENT_MEDICAL_RECORDS");
+
+      if (!isSelf && !hasGeneralViewPermission) {
+          console.log("[PatientProfilePage] Permission denied for user:", currentUser.id, "to view patient:", userId);
+          setPatientError("You do not have permission to view this patient's profile.");
+          setLoadingPatient(false);
+          return;
       }
 
+      console.log("[PatientProfilePage] Permissions OK. Setting loadingPatient true, clearing error.");
       setLoadingPatient(true);
-      setPatientError("");
+      setPatientError(""); 
       try {
+        console.log(`[PatientProfilePage] Attempting to fetch patient data for ID: ${userId}`);
         const data = await patientsApi.getPatientByUserId(userId);
-        setPatientData(data);
+        console.log("[PatientProfilePage] Fetched patient data:", data);
+        if (data) {
+            setPatientData(data);
+        } else {
+            setPatientError(`Patient data not found for ID: ${userId}. The record may not exist or the API returned no data.`);
+            setPatientData(null); 
+        }
       } catch (err) {
-        setPatientError(err.message || "Failed to load patient data.");
-        console.error("Error fetching patient for profile page:", err);
+        console.error("[PatientProfilePage] Error fetching patient data:", err);
+        setPatientError(err.message || `Failed to load patient data for ID: ${userId}. Check console for details.`);
       } finally {
+        console.log("[PatientProfilePage] Fetch attempt finished. Setting loadingPatient false.");
         setLoadingPatient(false);
       }
     };
-    fetchPatient();
-  }, [userId, currentUser, can]);
 
+    fetchPatient();
+  }, [userId, currentUser, authLoading, can]); // Added authLoading and can to dependencies
+
+  // Form handling logic (copied from your provided file, ensure it's correct for your needs)
   const handleEditClick = (type, item = null) => {
     setEditingItem(item);
     setShowForm((prev) => ({
-      ...Object.fromEntries(Object.keys(prev).map((k) => [k, false])), // Close other forms
-      [type]: true, // Open the selected form
+      ...Object.fromEntries(Object.keys(prev).map((k) => [k, false])),
+      [type]: true,
     }));
-    // Scroll to form or ensure it's visible if needed
   };
 
   const handleFormSuccessOrCancel = (type) => {
     setShowForm((prev) => ({ ...prev, [type]: false }));
     setEditingItem(null);
-    // Optionally, trigger a refresh of the list for the specific type if data was added/updated
-    // This might require passing a refresh function to the list components or re-fetching patientData
-    // For simplicity, we assume list components might re-fetch on their own or a full page refresh might occur.
+    // Optionally, re-fetch patient data if a sub-record (like medical record) was added/updated
+    // This depends on whether adding a sub-record should refresh the main patientData object
+    // For now, we assume sub-lists handle their own refresh.
   };
 
-  // The PageWithSidebar and its title are handled by AppRoutes.jsx
-  // This component should just return its content.
-
-  if (loadingPatient) {
-    return <LoadingSpinner message="Loading patient details..." />; // Centered loading
-  }
-  if (patientError) {
+  if (loadingPatient || authLoading) { // Check authLoading as well
+    console.log("[PatientProfilePage] Rendering LoadingSpinner. loadingPatient:", loadingPatient, "authLoading:", authLoading);
     return (
-      <div className="bg-red-100 border-l-4 border-red-500 text-red-700 p-4" role="alert">
-        <p className="font-bold">Error</p>
+      <div className="flex justify-center items-center h-64">
+        <LoadingSpinner message="Loading patient details..." />
+      </div>
+    );
+  }
+
+  if (patientError) {
+    console.log("[PatientProfilePage] Rendering error:", patientError);
+    return (
+      <div className="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 m-4 rounded-md" role="alert">
+        <p className="font-bold">Error Loading Patient Profile</p>
         <p>{patientError}</p>
       </div>
     );
   }
+
   if (!patientData) {
+    console.log("[PatientProfilePage] Rendering 'Patient data not found or not loaded.' for ID:", userId);
     return (
       <div className="p-4 text-center text-gray-600">
-        Patient data not found.
+        Patient data could not be loaded for ID: {userId}. Please ensure the ID is correct and you have permissions.
       </div>
     );
   }
+  
+  console.log("[PatientProfilePage] Rendering patient profile content for:", patientData?.user?.username);
 
+  // Permissions for managing sub-records (ensure 'can' function is correctly implemented)
   const canManageMedicalRecords = can("MANAGE_MEDICAL_RECORD") || can("CREATE_MEDICAL_RECORD");
   const canManagePrescriptions = can("MANAGE_PRESCRIPTION") || can("CREATE_PRESCRIPTION");
   const canManageTreatments = can("MANAGE_TREATMENT") || can("RECORD_TREATMENT");
@@ -125,8 +159,6 @@ const PatientProfilePage = () => {
     { id: "observations", label: "Observations" },
   ];
 
-  // ProtectedRoute is applied at the AppRoutes level, so it's not needed here directly
-  // if AppRoutes already secures this page.
   return (
     <div className="bg-white p-4 sm:p-6 rounded-lg shadow-xl space-y-6">
       <div className="border-b border-gray-200">
@@ -134,7 +166,12 @@ const PatientProfilePage = () => {
           {tabs.map((tab) => (
             <button
               key={tab.id}
-              onClick={() => setActiveTab(tab.id)}
+              onClick={() => {
+                setActiveTab(tab.id);
+                // Close any open forms when switching tabs
+                setShowForm({ medicalRecord: false, prescription: false, treatment: false, observation: false });
+                setEditingItem(null);
+              }}
               className={`${
                 activeTab === tab.id
                   ? "border-blue-500 text-blue-600"
@@ -151,18 +188,14 @@ const PatientProfilePage = () => {
         {activeTab === "profile" && (
           <PatientProfile
             patientUserId={userId}
-            // Pass patientData fetched by this page to avoid re-fetch in PatientProfile component
-            // PatientProfile component needs to be adjusted to accept this prop
-            existingPatientDataFromPage={patientData}
+            existingPatientDataFromPage={patientData} // Pass the fetched patientData
           />
         )}
 
         {activeTab === "medical_records" && (
           <div>
             <div className="flex justify-between items-center mb-4">
-              <h3 className="text-xl font-semibold text-gray-700">
-                Clinical Records
-              </h3>
+              <h3 className="text-xl font-semibold text-gray-700">Clinical Records</h3>
               {canManageMedicalRecords && !showForm.medicalRecord && (
                 <button
                   onClick={() => handleEditClick("medicalRecord")}
@@ -176,19 +209,13 @@ const PatientProfilePage = () => {
               <RecordForm
                 patientUserId={userId}
                 existingRecord={editingItem}
-                onFormSubmit={() =>
-                  handleFormSuccessOrCancel("medicalRecord")
-                }
+                onFormSubmit={() => handleFormSuccessOrCancel("medicalRecord")}
                 onCancel={() => handleFormSuccessOrCancel("medicalRecord")}
               />
             ) : (
               <MedicalRecordsList
                 patientUserId={userId}
-                onEditMedicalRecord={
-                  canManageMedicalRecords
-                    ? (record) => handleEditClick("medicalRecord", record)
-                    : undefined
-                }
+                onEditMedicalRecord={canManageMedicalRecords ? (record) => handleEditClick("medicalRecord", record) : undefined}
               />
             )}
           </div>
@@ -197,9 +224,7 @@ const PatientProfilePage = () => {
         {activeTab === "prescriptions" && (
           <div>
             <div className="flex justify-between items-center mb-4">
-              <h3 className="text-xl font-semibold text-gray-700">
-                Prescriptions
-              </h3>
+              <h3 className="text-xl font-semibold text-gray-700">Prescriptions</h3>
               {canManagePrescriptions && !showForm.prescription && (
                 <button
                   onClick={() => handleEditClick("prescription")}
@@ -219,11 +244,7 @@ const PatientProfilePage = () => {
             ) : (
               <PrescriptionList
                 patientUserId={userId}
-                onEditPrescription={
-                  canManagePrescriptions
-                    ? (rx) => handleEditClick("prescription", rx)
-                    : undefined
-                }
+                onEditPrescription={canManagePrescriptions ? (rx) => handleEditClick("prescription", rx) : undefined}
               />
             )}
           </div>
@@ -232,9 +253,7 @@ const PatientProfilePage = () => {
         {activeTab === "treatments" && (
           <div>
             <div className="flex justify-between items-center mb-4">
-              <h3 className="text-xl font-semibold text-gray-700">
-                Treatments
-              </h3>
+              <h3 className="text-xl font-semibold text-gray-700">Treatments</h3>
               {canManageTreatments && !showForm.treatment && (
                 <button
                   onClick={() => handleEditClick("treatment")}
@@ -254,11 +273,7 @@ const PatientProfilePage = () => {
             ) : (
               <TreatmentList
                 patientUserId={userId}
-                onEditTreatment={
-                  canManageTreatments
-                    ? (tx) => handleEditClick("treatment", tx)
-                    : undefined
-                }
+                onEditTreatment={canManageTreatments ? (tx) => handleEditClick("treatment", tx) : undefined}
               />
             )}
           </div>
@@ -267,9 +282,7 @@ const PatientProfilePage = () => {
         {activeTab === "observations" && (
           <div>
             <div className="flex justify-between items-center mb-4">
-              <h3 className="text-xl font-semibold text-gray-700">
-                Observations
-              </h3>
+              <h3 className="text-xl font-semibold text-gray-700">Observations</h3>
               {canManageObservations && !showForm.observation && (
                 <button
                   onClick={() => handleEditClick("observation")}
@@ -289,11 +302,7 @@ const PatientProfilePage = () => {
             ) : (
               <ObservationList
                 patientUserId={userId}
-                onEditObservation={
-                  canManageObservations
-                    ? (obs) => handleEditClick("observation", obs)
-                    : undefined
-                }
+                onEditObservation={canManageObservations ? (obs) => handleEditClick("observation", obs) : undefined}
               />
             )}
           </div>
