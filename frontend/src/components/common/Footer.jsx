@@ -40,13 +40,13 @@ const Footer = () => {
             <h5 className="uppercase font-semibold mb-2.5 text-slate-800">Contact</h5>
             <ul className="list-none mb-0 text-sm">
               <li className="mb-1">
-                <p className="text-slate-600">123 Health St, Wellness City, HC 45678</p>
+                <p className="text-slate-600">02 Middle Str,Polokwane</p>
               </li>
               <li className="mb-1">
-                <a href="mailto:info@hms-example.com" className="text-slate-600 hover:text-sky-600 transition-colors duration-200">info@hms-example.com</a>
+                <a href="mailto:info@hms-example.com" className="text-slate-600 hover:text-sky-600 transition-colors duration-200">admin@hms.example.com</a>
               </li>
               <li>
-                <a href="tel:+27762360798" className="text-slate-600 hover:text-sky-600 transition-colors duration-200">+01 234 567 89</a>
+                <a href="tel:+27762360798" className="text-slate-600 hover:text-sky-600 transition-colors duration-200">+27762360798</a>
               </li>
             </ul>
           </div>
